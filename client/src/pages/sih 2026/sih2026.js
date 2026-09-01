@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './sih2026.module.css';
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://react-iic.onrender.com/api';
 function Sih2026() {
   const [batchId, setBatchId] = useState('');
   const [email, setEmail] = useState('');
@@ -28,7 +28,7 @@ function Sih2026() {
     if (!batchId.trim() || !email.trim()) {
       setMessage({
         type: 'error',
-        text: 'Please enter both Batch ID & Registered Email.'
+        text: 'Please enter both Batch ID and Registered Email.'
       });
       return;
     }
@@ -381,13 +381,12 @@ function Sih2026() {
         {/* MESSAGE */}
         {message && (
           <div
-            className={`${styles.message} ${
-              message.type === 'success'
+            className={`${styles.message} ${message.type === 'success'
                 ? styles.successMessage
                 : message.type === 'error'
-                ? styles.errorMessage
-                : styles.infoMessage
-            }`}
+                  ? styles.errorMessage
+                  : styles.infoMessage
+              }`}
           >
             {message.type === 'success' && '✓ '}
             {message.type === 'error' && '⚠ '}
