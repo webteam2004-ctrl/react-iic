@@ -28,7 +28,7 @@ function Sih2026() {
     if (!batchId.trim() || !email.trim()) {
       setMessage({
         type: 'error',
-        text: 'Please enter both Batch ID and Registered Email.'
+        text: 'Please enter both Batch ID & Registered Email.'
       });
       return;
     }
