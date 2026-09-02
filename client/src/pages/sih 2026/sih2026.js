@@ -256,7 +256,7 @@ function Sih2026() {
 
         <p className={styles.heroText}>
           If you have 100% confindence that your project would be shortlisted. Fill the form below, this will provide a chance for re-evaluation of your project. 
-          </br><b>PROJECT WILL BE EVALUATED, MIGHT BE A CHANCE TO GET SHORTLISTED!</b>
+          <h4>PROJECT WILL BE EVALUATED, MIGHT BE A CHANCE TO GET SHORTLISTED!<h4>
         </p>
 
         <button
