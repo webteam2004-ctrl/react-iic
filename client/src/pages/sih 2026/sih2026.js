@@ -255,9 +255,8 @@ function Sih2026() {
         </h1>
 
         <p className={styles.heroText}>
-          Believe your project deserves another technical review?
-          Submit your project for an independent evaluation based on
-          innovation, implementation and technical contribution.
+          If you have 100% confindence that your project would be shortlisted. Fill the form below, this will provide a chance for re-evaluation of your project.
+          PROJECT WILL BE EVALUATED, MIGHT BE A CHANCE TO GET SHORTLISTED!
         </p>
 
         <button
@@ -275,8 +274,7 @@ function Sih2026() {
       <section className={styles.processSection}>
 
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>
-            PROCESS
+          <span className={styles.sectionTag}>           PROCESS
           </span>
 
           <h2>How it works</h2>
@@ -342,14 +340,10 @@ function Sih2026() {
         <div className={styles.infoIcon}>ℹ</div>
 
         <div>
-          <h3>Fair Technical Review Initiative</h3>
+          <h3>Limited Slots</h3>
 
           <p>
-            This initiative provides an opportunity for students to
-            request an additional technical review of their SIH
-            project. Please focus your submission on the project's
-            implementation, innovation, functionality and technical
-            contribution.
+            Only limited slots available!!! chances of getting shortlisted are less. Make sure you have ready working prototype.
           </p>
         </div>
 
