@@ -427,6 +427,112 @@
   font-size: 1rem;
 }
 
+/* SIH REGISTRATION TABLE */
+
+.searchContainer {
+  width: 280px;
+  margin: 0 0 24px auto !important;
+}
+
+.searchInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border: 2px solid var(--navy);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  color: var(--navy);
+  background: var(--card-bg);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(244, 162, 56, 0.25);
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: 0 4px 20px rgba(46, 42, 143, 0.06);
+}
+
+.dataTable {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+}
+
+.dataTable th,
+.dataTable td {
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.dataTable th {
+  background: var(--bg);
+  color: var(--navy);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dataTable tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.dataTable tbody tr:hover {
+  background: rgba(244, 162, 56, 0.06);
+}
+
+.dataTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.teamName {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pending {
+  background: rgba(244, 162, 56, 0.15);
+  border: 1px solid rgba(244, 162, 56, 0.4);
+  color: #965200;
+}
+
+.completed {
+  background: rgba(46, 42, 143, 0.1);
+  border: 1px solid rgba(46, 42, 143, 0.3);
+  color: var(--navy);
+}
+
+.noData {
+  padding: 24px;
+  color: var(--muted);
+  font-style: italic;
+  text-align: center !important;
+}
+
 /* TABLET */
 
 @media (max-width: 950px) {
@@ -499,5 +605,69 @@
     width: 30px;
     height: 30px;
     min-width: 30px;
+  }
+
+  .searchContainer {
+    width: 100%;
+    margin-bottom: 16px !important;
+  }
+
+  .tableWrapper {
+    overflow-x: visible;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .dataTable,
+  .dataTable tbody,
+  .dataTable tr,
+  .dataTable td {
+    display: block;
+    width: 100%;
+  }
+
+  .dataTable {
+    min-width: 0;
+  }
+
+  .dataTable thead {
+    display: none;
+  }
+
+  .dataTable tbody tr {
+    box-sizing: border-box;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  }
+
+  .dataTable td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  .dataTable td::before {
+    flex-shrink: 0;
+    padding-right: 12px;
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .dataTable td:last-child {
+    border-bottom: none;
   }
 }

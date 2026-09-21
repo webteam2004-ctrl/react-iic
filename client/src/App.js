@@ -11,7 +11,7 @@ const Events = React.lazy(() => import('./pages/events/events'));
 const Gallery = React.lazy(() => import('./pages/gallery/gallery'));
 const Teams = React.lazy(() => import('./pages/teams/teams'));
 const About = React.lazy(() => import('./pages/about/about'));
-// const SIH2026 = React.lazy(() => import('./pages/sih 2026/sih2026'));
+const SIH2026 = React.lazy(() => import('./pages/sih2026/sih2026'));
 const AdminLogin = React.lazy(() => import('./pages/adminLogin/AdminLogin'));
 // const AdminChallenges = React.lazy(() =>
 //   import('./pages/AdminChallenges/AdminChallenges')
@@ -46,7 +46,8 @@ function App() {
             <Route path="/events" element={<Events />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/teams" element={<Teams />} />
-            {/* <Route path="/challenge" element={<SIH2026 />} /> */}
+            <Route path="/sih2026" element={<SIH2026 />} />
+            <Route path="/challenge" element={<SIH2026 />} />
 
              <Route
               path="/admin-portal-login"
