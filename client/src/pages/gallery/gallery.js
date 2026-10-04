@@ -1,496 +1,706 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-	Calendar,
-	Image as ImageIcon,
-	ChevronLeft,
-	ChevronRight,
-	X,
-	ArrowRight,
-	Sparkles
-} from "lucide-react";
-import styles from './Gallery.module.css';
+// ============================================================================
+// ACTIVE IMPLEMENTATION (Integrated from Desktop)
+// ============================================================================
+import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import "./Gallery.css";
 
 const galleryData = [
-	{
-		id: "gallery-1",
-		category: "bootcamp",
-		title: "IIC Activities & Innovation Bootcamp",
-		date: "Oct 30, 2021",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/20211030_140219.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/20211117_113131.jpg"
-		]
-	},
-	{
-		id: "gallery-2",
-		category: "workshop",
-		title: "Student Startup & Prototyping Meet",
-		date: "Nov 17, 2021",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/20211117_113131.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.02_a7338a25.jpg"
-		]
-	},
-	{
-		id: "gallery-3",
-		category: "hackathon",
-		title: "Innovation Meetup & Hackathon 2024",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.02_a7338a25.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.40_440a1463.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.40_c861f92e.jpg"
-		]
-	},
-	{
-		id: "gallery-4",
-		category: "hackathon",
-		title: "Code Sprint & Hackathon Highlights",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.40_440a1463.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.02_a7338a25.jpg"
-		]
-	},
-	{
-		id: "gallery-5",
-		category: "summit",
-		title: "Tech Ideation & Innovation Summit",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.40_c861f92e.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.22.25_c3b41748.jpg"
-		]
-	},
-	{
-		id: "gallery-6",
-		category: "summit",
-		title: "Future of Tech Leadership Summit",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.22.25_c3b41748.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.22.25_c872376b.jpg"
-		]
-	},
-	{
-		id: "gallery-7",
-		category: "workshop",
-		title: "Founders Talk & Startup Incubation",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.22.25_c872376b.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.22.26_978bafab.jpg"
-		]
-	},
-	{
-		id: "gallery-8",
-		category: "workshop",
-		title: "Product Engineering & Mentorship",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.22.26_978bafab.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/20211030_140219.jpg"
-		]
-	},
-	{
-		id: "gallery-9",
-		category: "summit",
-		title: "Regional Innovation & Community Outreach",
-		date: "Mar 13, 2024",
-		images: [
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/20211030_140219.jpg",
-			"https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Gallery/WhatsApp%20Image%202024-03-13%20at%2020.17.02_a7338a25.jpg"
-		]
-	},
-	{
-		id: "gallery-10",
-		category: "workshop",
-		title: "Industrial Startup Visit (Neem Tree Toys)",
-		date: "Aug 9, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Screenshot%202026-08-21%20150032.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Screenshot%202026-08-21%20150124.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Screenshot%202026-08-21%20150053.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Screenshot%202026-08-21%20150107.png"
-		]
-	},
-
-	{
-		id: "gallery-12",
-		category: "workshop",
-		title: "Incubation Visit to KLU",
-		date: "Mar 25, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/klu/Screenshot%202026-08-21%20151218.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/klu/Screenshot%202026-08-21%20151239.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/klu/Screenshot%202026-08-21%20151306.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/klu/Screenshot%202026-08-21%20151321.png"
-		]
-	},
-	{
-		id: "gallery-13",
-		category: "summit",
-		title: "Prime Minister Budget Webinar 2026",
-		date: "Mar 9, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/pm%20budget%20web/Screenshot%202026-08-21%20151613.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/pm%20budget%20web/Screenshot%202026-08-21%20151623.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/pm%20budget%20web/Screenshot%202026-08-21%20151638.png"
-		]
-	},
-	{
-		id: "gallery-14",
-		category: "hackathon",
-		title: "IDEATHON – Hack the Thought",
-		date: "Feb 5, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/ideathon/Screenshot%202026-08-21%20151912.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/ideathon/Screenshot%202026-08-21%20151927.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/ideathon/Screenshot%202026-08-21%20151942.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/ideathon/Screenshot%202026-08-21%20151957.png"
-		]
-	},
-	{
-		id: "gallery-15",
-		category: "workshop",
-		title: "Outreach to Uppalapadu",
-		date: "Jan 28, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Uppalapadu/Screenshot%202026-08-21%20152404.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Uppalapadu/Screenshot%202026-08-21%20152419.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/Uppalapadu/Screenshot%202026-08-21%20152436.png"
-		]
-	},
-	{
-		id: "gallery-16",
-		category: "summit",
-		title: "Ministry of Education's Innovation Cell",
-		date: "Jan 26, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/MoE%20cell/Screenshot%202026-08-21%20152610.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/MoE%20cell/Screenshot%202026-08-21%20152622.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/MoE%20cell/Screenshot%202026-08-21%20152634.png"
-		]
-	},
-	{
-		id: "gallery-17",
-		category: "workshop",
-		title: "Incubation Visit to SRM University",
-		date: "Dec 25, 2025",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SRM%20University/Screenshot%202026-08-21%20152904.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SRM%20University/Screenshot%202026-08-21%20152936.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SRM%20University/Screenshot%202026-08-21%20152922.png",
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SRM%20University/Screenshot%202026-08-21%20152951.png"
-		]
-	},
-	{
-		id: "gallery-18",
-		category: "workshop",
-		title: "Incubation Visit to RVR&JC",
-		date: "Aug 22, 2026",
-		images: [
-			"https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/rvr&jc/WhatsApp%20Image%202026-08-23%20at%2012.09.02%20AM.jpeg"
-		]
-	}
+  {
+    id: "sih2026",
+    year: "2026",
+    category: "hackathon",
+    title: "SIH Hackathon",
+    date: "August 2026",
+    description:
+      "The Institution's Innovation Council at VVITU University successfully organized Smart India Hackathon 2026. This national-level event provided a platform for students to demonstrate their technical prowess and improve their skills through real-world applications.",
+    images: ["/images/sih1.png"],
+  },
+  {
+    id: "idea2026",
+    year: "2026",
+    category: "Incub",
+    title: "Incubation Visit",
+    date: "August 22, 2026",
+    description:
+      "VVITU IIC visited to RVRJC, which helped students to gain practical understanding of the Incubation and learn about Entrepreneurs. The session focused on bridging the gap between academic learning and real-world startup strategies.",
+    images: [
+      "/images/incub1.png",
+      "/images/incub2.png",
+      "/images/incub3.png",
+      "/images/incub4.png",
+    ],
+  },
+  {
+    id: "idea",
+    year: "2026",
+    category: "Incub",
+    title: "Incubation Visit",
+    date: "March 25, 2026",
+    description: "VVITU IIC visited to KL University on March 25, 2026.",
+    images: ["/images/inckl1.png", "/images/inckl2.png"],
+  },
+  {
+    id: "idea2025",
+    year: "2025",
+    category: "Incub",
+    title: "Incubation Visit",
+    date: "December 25, 2025",
+    description:
+      "VVITU IIC visited to SRM on December 25, 2025. The session focused on bridging the gap between academic learning and real-world startup strategies.",
+    images: ["/images/isrm1.png", "/images/isrm2.png"],
+  },
+  {
+    id: "coding2025",
+    year: "2025",
+    category: "hackathon",
+    title: "Innovate it",
+    date: "Oct 15, 2025",
+    description:
+      "Held on October 15th, 'INNOVATE-IT' was a dedicated ideation platform designed to foster the entrepreneurial spirit. Student teams of 2-3 members showcased their problem-solving skills, presenting unique concepts under the theme 'Ignite Ideas, Inspire Action.'",
+    images: ["/images/inno1.png", "/images/inno2.png"],
+  },
+  {
+    id: "pitch2025",
+    year: "2025",
+    category: "workshop",
+    title: "Tech Talks",
+    date: "Nov 7, 2025",
+    description:
+      "From student to founder! Our students received invaluable mentorship from the host MR.Dileep Sajja who broke down the importance of entrepreneurship and shared the essential strategies needed to build a business from scratch.",
+    images: ["/images/techt.png"],
+  },
 ];
 
+const categoryLabels = {
+  hackathon: "Hackathon",
+  workshop: "Workshop",
+  Incub: "Incubation Visit",
+};
+const categories = [...new Set(galleryData.map((item) => item.category))];
 const filterOptions = [
-	{ label: "All Events", value: "all" },
-	{ label: "Hackathons", value: "hackathon" },
-	{ label: "Workshops", value: "workshop" },
-	{ label: "Bootcamp", value: "bootcamp" },
-	{ label: "Summit", value: "summit" }
+  { label: "All", value: "all" },
+  ...["hackathon", "workshop", ...categories]
+    .filter(
+      (value, index, values) =>
+        categories.includes(value) && values.indexOf(value) === index,
+    )
+    .map((value) => ({ label: categoryLabels[value] || value, value })),
 ];
+const galleryYears = [...new Set(galleryData.map((item) => item.year))];
+const photoTotal = galleryData.reduce(
+  (total, item) => total + item.images.length,
+  0,
+);
 
 function Gallery() {
-	const [localGalleryData] = useState(galleryData);
-	const [loading] = useState(false);
-	const [filter, setFilter] = useState("all");
-	const [modal, setModal] = useState({ open: false, event: null, photoIdx: 0 });
+  const [filter, setFilter] = useState("all");
+  const [modal, setModal] = useState({ open: false, event: null, photoIdx: 0 });
+  const [coverIndex, setCoverIndex] = useState(0);
+  const [typedTitle, setTypedTitle] = useState("");
+  const [typingFinished, setTypingFinished] = useState(false);
+  const pointerStart = useRef(null);
+  const didSwipe = useRef(false);
+  const featuredGallery = galleryData.slice(0, 7);
+  const typedHeadline =
+    "Every photo tells a story of an idea brought to life. Explore, engage, and innovate.";
+  const typedLeadEnd = typedHeadline.indexOf(" Explore,");
 
-	const filteredGallery =
-		filter === "all"
-			? [...localGalleryData].sort((a, b) => {
-					const dateA = new Date(a.date);
-					const dateB = new Date(b.date);
-					return dateB - dateA;
-				})
-			: [...localGalleryData]
-					.filter((item) => item.category === filter)
-					.sort((a, b) => {
-							const dateA = new Date(a.date);
-							const dateB = new Date(b.date);
-							return dateB - dateA;
-					});
+  const filteredGallery = galleryData.filter((item) => {
+    const categoryMatch = filter === "all" || item.category === filter;
+    return categoryMatch;
+  });
+  const visibleYears = galleryYears.filter((eventYear) =>
+    filteredGallery.some((item) => item.year === eventYear),
+  );
 
-	const openModal = useCallback((event, photoIdx = 0) => {
-		setModal({ open: true, event, photoIdx });
-	}, []);
+  useEffect(() => {
+    if (typingFinished) return undefined;
+    if (typedTitle.length >= typedHeadline.length) {
+      setTypingFinished(true);
+      return undefined;
+    }
 
-	const closeModal = useCallback(() => {
-		setModal({ open: false, event: null, photoIdx: 0 });
-	}, []);
+    const timer = window.setTimeout(() => {
+      setTypedTitle(typedHeadline.slice(0, typedTitle.length + 1));
+    }, 20);
 
-	const nextPhoto = useCallback(() => {
-		if (!modal.event) return;
-		setModal((m) => ({
-			...m,
-			photoIdx: (m.photoIdx + 1) % m.event.images.length
-		}));
-	}, [modal.event]);
+    return () => window.clearTimeout(timer);
+  }, [typedHeadline, typedTitle, typingFinished]);
 
-	const prevPhoto = useCallback(() => {
-		if (!modal.event) return;
-		setModal((m) => ({
-			...m,
-			photoIdx: (m.photoIdx - 1 + m.event.images.length) % m.event.images.length
-		}));
-	}, [modal.event]);
+  useEffect(() => {
+    if (
+      modal.open ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return undefined;
+    }
+    const timer = window.setInterval(() => {
+      setCoverIndex((index) => (index + 1) % featuredGallery.length);
+    }, 3800);
+    return () => window.clearInterval(timer);
+  }, [featuredGallery.length, modal.open]);
 
-	// Keyboard navigation for the modal
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (!modal.open) return;
-			if (e.key === "Escape") closeModal();
-			if (e.key === "ArrowRight") nextPhoto();
-			if (e.key === "ArrowLeft") prevPhoto();
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [modal.open, nextPhoto, prevPhoto, closeModal]);
+  useEffect(() => {
+    if (!modal.open) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [modal.open]);
 
-	// Lock body scroll when modal is open
-	useEffect(() => {
-		if (modal.open) {
-			document.body.style.overflow = "hidden";
-		} else {
-			document.body.style.overflow = "";
-		}
-		return () => {
-			document.body.style.overflow = "";
-		};
-	}, [modal.open]);
+  useEffect(() => {
+    if (!modal.open) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setModal({ open: false, event: null, photoIdx: 0 });
+      }
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        setModal((current) => {
+          if (!current.event) return current;
+          const imageCount = current.event.images.length;
+          return {
+            ...current,
+            photoIdx: (current.photoIdx + direction + imageCount) % imageCount,
+          };
+        });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [modal.open]);
 
-	return (
-		<div className={styles.wrap}>
-			<main>
-				{/* Hero Section */}
-				<div className={styles['hero-gallery']}>
-					<div className={styles['hero-badge']}>
-						<Sparkles size={16} />
-						<span>Visual Highlights</span>
-					</div>
-					<h1>Event Gallery</h1>
-					<p>
-						Explore the highlights from our past events, workshops, and community gatherings. Witness the innovation and collaboration that define IIC.
-					</p>
-				</div>
+  const moveCover = (step) => {
+    setCoverIndex(
+      (index) =>
+        (index + step + featuredGallery.length) % featuredGallery.length,
+    );
+  };
 
-				{/* Filter Buttons */}
-				<div className={styles['filter-container']}>
-					{filterOptions.map((opt) => (
-						<button
-							key={opt.value}
-							className={`${styles['filter-btn']} ${filter === opt.value ? styles['active'] : ""}`}
-							onClick={() => setFilter(opt.value)}
-						>
-							{opt.label}
-						</button>
-					))}
-				</div>
+  const handleCoverPointerUp = (event) => {
+    if (pointerStart.current === null) return;
+    const distance = event.clientX - pointerStart.current;
+    pointerStart.current = null;
+    if (Math.abs(distance) > 45) {
+      didSwipe.current = true;
+      moveCover(distance < 0 ? 1 : -1);
+    }
+  };
 
-				{/* Gallery Grid */}
-				<div className={styles['gallery-wrapper']}>
-					{loading ? (
-						<div className={styles['loading-state']}>
-							Loading Gallery Data... <i className="fa-solid fa-circle-notch fa-spin"></i>
-						</div>
-					) : (
-						<div className={styles['grid-container']}>
-							{filteredGallery.map((item, idx) => {
-								const totalImages = item.images ? item.images.length : 0;
-								const coverImage = item.images && item.images[0] ? item.images[0] : "";
+  const handleCardPointerMove = (event) => {
+    if (event.pointerType !== "mouse") return;
+    const imageStack = event.currentTarget.querySelector(".event-image-stack");
+    const bounds = imageStack.getBoundingClientRect();
+    const horizontal = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const vertical = (event.clientY - bounds.top) / bounds.height - 0.5;
+    imageStack.style.setProperty("--tilt-x", `${-vertical * 9}deg`);
+    imageStack.style.setProperty("--tilt-y", `${horizontal * 11}deg`);
+  };
 
-								return (
-									<div
-										className={styles['gallery-card']}
-										key={item.id || idx}
-										onClick={() => openModal(item, 0)}
-									>
-										{/* Left Side: Clean Image Poster */}
-										<div className={styles['card-poster']}>
-											<img
-												src={coverImage}
-												alt={item.title}
-												loading="lazy"
-												className={styles['poster-img']}
-											/>
+  const resetCardTilt = (event) => {
+    const imageStack = event.currentTarget.querySelector(".event-image-stack");
+    imageStack.style.removeProperty("--tilt-x");
+    imageStack.style.removeProperty("--tilt-y");
+  };
 
-											{/* Top Right Photo Count Badge */}
-											{totalImages > 1 && (
-												<div className={styles['count-badge']}>
-													<ImageIcon size={13} />
-													<span>{totalImages} Photos</span>
-												</div>
-											)}
-										</div>
+  const openModal = (event) => {
+    setModal({ open: true, event, photoIdx: 0 });
+  };
+  const closeModal = () => setModal({ open: false, event: null, photoIdx: 0 });
+  const nextPhoto = () => {
+    if (!modal.event) return;
+    setModal((m) => ({
+      ...m,
+      photoIdx: (m.photoIdx + 1) % m.event.images.length,
+    }));
+  };
+  const prevPhoto = () => {
+    if (!modal.event) return;
+    setModal((m) => ({
+      ...m,
+      photoIdx:
+        (m.photoIdx - 1 + m.event.images.length) % m.event.images.length,
+    }));
+  };
 
-										{/* Right Side: Clean Minimal Details */}
-										<div className={styles['card-content']}>
-											<div className={styles['card-details-top']}>
-												<div className={styles['card-header']}>
-													<div className={styles['date-wrapper']}>
-														<Calendar size={14} className={styles['date-icon']} />
-														<span>{item.date}</span>
-													</div>
-													<span className={styles['card-category-tag']}>
-														{item.category}
-													</span>
-												</div>
+  return (
+    <div className="wrap gallery-page">
+      <main>
+        <div className="hero-gallery">
+          <div className="hero-quote-card">
+            <div className="hero-quote-badge" aria-hidden="true">
+              “
+            </div>
+            <p className="hero-intro-line">
+              <span className="typed-text quote-first-sentence">
+                {typedTitle.slice(0, typedLeadEnd)}
+              </span>
+              {typedTitle.length > typedLeadEnd && (
+                <>
+                  <br />
+                  <span className="typed-text">
+                    {typedTitle.slice(typedLeadEnd).trimStart()}
+                  </span>
+                </>
+              )}
+              {!typingFinished && (
+                <span className="typing-cursor" aria-hidden="true" />
+              )}
+            </p>
+          </div>
+          <motion.div
+            className="hero-highlight-card"
+            aria-label="Gallery highlight panel"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <span className="hero-highlight-text">
+              INNOVATION COUNCIL · EVENTS GALLERY
+            </span>
+          </motion.div>
+          <motion.p
+            className="hero-subtitle"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            A curated collection of gatherings that inspire, connect and leave a lasting impression.
+          </motion.p>
+          <motion.div
+            className="hero-stats"
+            aria-label="Gallery statistics"
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.div whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+              <strong className="stat-yellow">{galleryData.length}</strong>
+              <span>Events</span>
+            </motion.div>
+            <motion.div whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+              <strong className="stat-red">{photoTotal}</strong>
+              <span>Photos</span>
+            </motion.div>
+            <motion.div whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+              <strong className="stat-blue">{galleryYears.length}</strong>
+              <span>Years</span>
+            </motion.div>
+          </motion.div>
 
-												<h3 className={styles['card-title']}>
-													{item.title}
-												</h3>
-											</div>
+          <motion.section
+            className="coverflow-section"
+            aria-label="Featured IIC event photos"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div
+              className="coverflow-stage"
+              onPointerDown={(event) => {
+                pointerStart.current = event.clientX;
+              }}
+              onPointerUp={handleCoverPointerUp}
+            >
+              {featuredGallery.map((item, index) => {
+                const offset = index - coverIndex;
+                const normalizedOffset = Math.abs(offset);
+                const isActive = offset === 0;
 
-											{/* Action Footer */}
-											<div className={styles['card-footer']}>
-												<button
-													className={styles['action-btn']}
-													onClick={(e) => {
-														e.stopPropagation();
-														openModal(item, 0);
-													}}
-												>
-													<span>Explore Gallery</span>
-													<ArrowRight size={16} className={styles['btn-arrow']} />
-												</button>
-											</div>
-										</div>
-									</div>
-								);
-							})}
-						</div>
-					)}
-				</div>
-
-				{/* Numbers & Stats Banner */}
-				<section className={styles['gallery-stats']}>
-					<h2>IIC by the Numbers</h2>
-					<div className={styles['stats-grid']}>
-						<div className={styles['stat-item']}>
-							<h3>50+</h3>
-							<p>Photos Captured</p>
-						</div>
-						<div className={styles['stat-item']}>
-							<h3>17</h3>
-							<p>Events Hosted</p>
-						</div>
-						<div className={styles['stat-item']}>
-							<h3>500+</h3>
-							<p>Participants</p>
-						</div>
-						<div className={styles['stat-item']}>
-							<h3>100%</h3>
-							<p>Innovation Impact</p>
-						</div>
-					</div>
-				</section>
-			</main>
-
-			{/* Interactive Lightbox / Full Poster Modal */}
-			{modal.open && modal.event && (
-				<div
-					className={styles['modal-backdrop']}
-					onClick={closeModal}
-					role="dialog"
-					aria-modal="true"
-				>
-					<div
-						className={styles['modal-box']}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{/* Close button */}
-						<button
-							className={styles['modal-close-btn']}
-							onClick={closeModal}
-							aria-label="Close modal"
-						>
-							<X size={20} />
-						</button>
-
-						{/* Modal Stage: Full High-Res Poster View */}
-						<div className={styles['modal-stage']}>
-							<img
-								className={styles['modal-main-img']}
-								src={modal.event.images[modal.photoIdx]}
-								alt={modal.event.title}
-							/>
-
-							{/* Previous and Next Navigation Arrows on Modal */}
-							{modal.event.images.length > 1 && (
-								<>
-									<button
-										className={`${styles['modal-arrow']} ${styles['modal-arrow-left']}`}
-										onClick={prevPhoto}
-										aria-label="Previous photo"
-									>
-										<ChevronLeft size={26} />
-									</button>
-									<button
-										className={`${styles['modal-arrow']} ${styles['modal-arrow-right']}`}
-										onClick={nextPhoto}
-										aria-label="Next photo"
-									>
-										<ChevronRight size={26} />
-									</button>
-								</>
-							)}
-
-							{/* Photo index counter pill on modal */}
-							<div className={styles['modal-counter-pill']}>
-								{modal.photoIdx + 1} / {modal.event.images.length}
-							</div>
-						</div>
-
-						{/* Modal Footer with Thumbnail Strip & Info */}
-						<div className={styles['modal-footer-info']}>
-							{modal.event.images.length > 1 && (
-								<div className={styles['modal-thumbnails-bar']}>
-									{modal.event.images.map((imgUrl, tIdx) => (
-										<button
-											key={tIdx}
-											className={`${styles['modal-thumb-btn']} ${modal.photoIdx === tIdx ? styles['modal-thumb-active'] : ''}`}
-											onClick={() => setModal((m) => ({ ...m, photoIdx: tIdx }))}
-											aria-label={`View photo ${tIdx + 1}`}
-										>
-											<img src={imgUrl} alt={`Thumbnail ${tIdx + 1}`} />
-										</button>
-									))}
-								</div>
-							)}
-
-							<div className={styles['modal-text-content']}>
-								<div className={styles['modal-top-row']}>
-									<div className={styles['modal-tags']}>
-										<span className={styles['modal-category']}>
-											{modal.event.category}
-										</span>
-										<span className={styles['modal-date']}>
-											<Calendar size={13} />
-											{modal.event.date}
-										</span>
-									</div>
-								</div>
-								<h3 className={styles['modal-title']}>{modal.event.title}</h3>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-		</div>
-	);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`coverflow-card${isActive ? " is-active" : ""}`}
+                    onClick={() => {
+                      if (isActive) {
+                        openModal(item);
+                      } else {
+                        moveCover(offset < 0 ? -1 : 1);
+                      }
+                    }}
+                    style={{
+                      opacity: normalizedOffset > 2 ? 0 : 1,
+                      transform: `translate(-50%, -50%) translateX(${offset * 210}px) translateZ(${normalizedOffset * -120}px) rotateY(${offset * -28}deg) scale(${isActive ? 1 : 0.9})`,
+                      zIndex: 100 - normalizedOffset,
+                    }}
+                    aria-label={`View ${item.title}`}
+                  >
+                    <img src={item.images[0]} alt={item.title} loading="lazy" />
+                    <span className="coverflow-caption">
+                      <small>{item.date}</small>
+                      <strong>{item.title}</strong>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="coverflow-controls" aria-label="Carousel controls">
+              <button
+                type="button"
+                onClick={() => moveCover(-1)}
+                aria-label="Previous photo set"
+              >
+                ‹
+              </button>
+              <span>
+                {coverIndex + 1} / {featuredGallery.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => moveCover(1)}
+                aria-label="Next photo set"
+              >
+                ›
+              </button>
+            </div>
+          </motion.section>
+        </div>
+        <motion.section
+          className="event-library"
+          aria-labelledby="past-events-title"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.08 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <motion.div
+            className="library-heading"
+            initial={{ opacity: 0, x: -25 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div>
+              <h2 id="past-events-title">Past events</h2>
+            </div>
+          </motion.div>
+          <motion.div
+            className="filter-container"
+            aria-label="Filter by category"
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+          >
+            {filterOptions.map((opt) => (
+              <button
+                key={opt.value}
+                className={
+                  "filter-btn" + (filter === opt.value ? " active" : "")
+                }
+                type="button"
+                aria-pressed={filter === opt.value}
+                onClick={() => setFilter(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+            <p className="result-count">
+              {filteredGallery.length} events <i />{" "}
+              {filteredGallery.reduce(
+                (total, item) => total + item.images.length,
+                0,
+              )}{" "}
+              photos
+            </p>
+          </motion.div>
+          {filteredGallery.length === 0 ? (
+            <p className="empty-state">No events match these filters.</p>
+          ) : (
+            visibleYears.map((eventYear) => (
+              <motion.section
+                className="year-section"
+                key={eventYear}
+                aria-labelledby={`year-${eventYear}`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <motion.h3
+                  className="year-heading"
+                  id={`year-${eventYear}`}
+                  initial={{ opacity: 0, x: -25 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {eventYear}
+                </motion.h3>
+                <div className="gallery-grid">
+                  {filteredGallery
+                    .filter((item) => item.year === eventYear)
+                    .map((item, itemIdx) => (
+                      <motion.button
+                        className="gallery-item"
+                        key={item.id}
+                        type="button"
+                        onClick={() => openModal(item)}
+                        onPointerMove={handleCardPointerMove}
+                        onPointerLeave={resetCardTilt}
+                        aria-label={`Open ${item.title}, ${item.date}`}
+                        initial={{ opacity: 0, y: 32, scale: 0.96 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: true, margin: "-40px" }}
+                        transition={{
+                          duration: 0.5,
+                          ease: [0.22, 1, 0.36, 1],
+                          delay: (itemIdx % 3) * 0.08,
+                        }}
+                        whileHover={{
+                          y: -8,
+                          transition: { duration: 0.22, ease: "easeOut" },
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span className="event-image-stack">
+                          <img src={item.images[0]} alt="" loading="lazy" />
+                          <span className="event-tag">
+                            {categoryLabels[item.category] || item.category}
+                          </span>
+                          <span className="photo-tag">
+                            {item.images.length}{" "}
+                            {item.images.length === 1 ? "photo" : "photos"}
+                          </span>
+                        </span>
+                        <span className="event-meta">
+                          <small>{item.date}</small>
+                          <strong>{item.title}</strong>
+                          <span>{item.description}</span>
+                        </span>
+                      </motion.button>
+                    ))}
+                </div>
+              </motion.section>
+            ))
+          )}
+        </motion.section>
+      </main>
+      {/* Modal for gallery images */}
+      <AnimatePresence>
+        {modal.open && (
+          <motion.div
+            className="modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "fixed",
+              inset: 0,
+              background: "rgba(10,10,30,0.95)",
+              zIndex: 1000,
+            }}
+            role="presentation"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) closeModal();
+            }}
+          >
+            <motion.div
+              className="modal-content"
+              initial={{ opacity: 0, scale: 0.92, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 18 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                position: "relative",
+                maxWidth: "100vw",
+                width: "90vw",
+                maxHeight: "90vh",
+                display: "flex",
+                flexDirection: "column",
+                background: "#fff",
+                borderRadius: "16px",
+                overflow: "hidden",
+                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+              }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${modal.event.title} photo album`}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                className="modal-close"
+                style={{
+                  position: "absolute",
+                  top: 20,
+                  right: 20,
+                  width: 40,
+                  height: 40,
+                  background: "rgba(255,255,255,0.9)",
+                  border: "none",
+                  borderRadius: "50%",
+                  color: "#2E2A8F",
+                  fontSize: 28,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 1001,
+                }}
+                onClick={closeModal}
+              >
+                &times;
+              </button>
+              <img
+                className="modal-image"
+                src={modal.event.images[modal.photoIdx]}
+                alt={modal.event.title}
+                style={{
+                  width: "100%",
+                  height: "60vh",
+                  objectFit: "contain",
+                  background: "#000",
+                }}
+              />
+              <div
+                className="modal-info"
+                style={{
+                  padding: "20px 30px",
+                  background: "#fff",
+                  color: "#222",
+                  borderTop: "4px solid #F4A238",
+                }}
+              >
+                <div
+                  className="modal-header-row"
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: 8,
+                  }}
+                >
+                  <h3
+                    className="modal-title"
+                    style={{
+                      fontSize: 24,
+                      fontWeight: 700,
+                      color: "#2E2A8F",
+                      margin: 0,
+                    }}
+                  >
+                    {modal.event.title}
+                  </h3>
+                  <span
+                    className="photo-counter"
+                    style={{
+                      fontSize: 13,
+                      background: "#eee",
+                      padding: "4px 10px",
+                      borderRadius: 12,
+                      color: "#555",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {modal.photoIdx + 1} / {modal.event.images.length}
+                  </span>
+                </div>
+                <p
+                  className="modal-date"
+                  style={{
+                    fontSize: 14,
+                    color: "#F4A238",
+                    fontWeight: 600,
+                    margin: "0 0 12px",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  {modal.event.date}
+                </p>
+                <p
+                  className="modal-description"
+                  style={{
+                    fontSize: 15,
+                    color: "#6b6b6b",
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}
+                >
+                  {modal.event.description}
+                </p>
+                <div className="album-thumbnails" aria-label="Event photos">
+                  {modal.event.images.map((image, index) => (
+                    <button
+                      className={`album-thumbnail${modal.photoIdx === index ? " active" : ""}`}
+                      key={image}
+                      type="button"
+                      aria-label={`Show photo ${index + 1}`}
+                      aria-pressed={modal.photoIdx === index}
+                      onClick={() =>
+                        setModal((current) => ({ ...current, photoIdx: index }))
+                      }
+                    >
+                      <img src={image} alt="" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <>
+                <button
+                  className="modal-nav modal-prev"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: 30,
+                    transform: "translateY(-50%)",
+                    background: "rgba(255,255,255,0.2)",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    color: "#2E2A8F",
+                    fontSize: 24,
+                    width: 50,
+                    height: 50,
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1001,
+                  }}
+                  onClick={prevPhoto}
+                >
+                  &lt;
+                </button>
+                <button
+                  className="modal-nav modal-next"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    right: 30,
+                    transform: "translateY(-50%)",
+                    background: "rgba(255,255,255,0.2)",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    color: "#2E2A8F",
+                    fontSize: 24,
+                    width: 50,
+                    height: 50,
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1001,
+                  }}
+                  onClick={nextPhoto}
+                >
+                  &gt;
+                </button>
+              </>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default Gallery;

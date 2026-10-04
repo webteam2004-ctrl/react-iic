@@ -21,6 +21,8 @@ function Footer() {
                 <h6 className="footer-title">Quick Links</h6>
                 <Link to="/" className="link link-hover">Home</Link>
                 <Link to="/events" className="link link-hover">Events</Link>
+                <Link to="/calender" className="link link-hover">Calendar</Link>
+                <Link to="/ideahub" className="link link-hover">Idea Hub</Link>
                 <Link to="/gallery" className="link link-hover">Gallery</Link>
                 <Link to="/teams" className="link link-hover">Teams</Link>
                 <Link to="/contact" className="link link-hover">Contact</Link>

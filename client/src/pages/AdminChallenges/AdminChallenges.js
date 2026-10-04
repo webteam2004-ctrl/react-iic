@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './adminChallenges.module.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://react-iic.onrender.com/api';
 
 function AdminChallenges() {
   const [challenges, setChallenges] = useState([]);
@@ -108,20 +108,17 @@ function AdminChallenges() {
         );
       }
 
-      // Immediately update UI
+      if (!result.challenge) {
+        throw new Error('Updated challenge was not returned by the server.');
+      }
+
       setChallenges((previousChallenges) =>
         previousChallenges.map((challenge) =>
           challenge.id === id
-            ? {
-              ...challenge,
-              web_team_review_status: status
-            }
+            ? result.challenge
             : challenge
         )
       );
-
-      // Fetch latest data from database
-      await fetchChallenges(false);
 
       setMessage({
         type: 'success',
@@ -175,20 +172,17 @@ function AdminChallenges() {
         );
       }
 
-      // Immediately update UI
+      if (!result.challenge) {
+        throw new Error('Updated challenge was not returned by the server.');
+      }
+
       setChallenges((previousChallenges) =>
         previousChallenges.map((challenge) =>
           challenge.id === id
-            ? {
-              ...challenge,
-              faculty_review_status: status
-            }
+            ? result.challenge
             : challenge
         )
       );
-
-      // Fetch latest data from database
-      await fetchChallenges(false);
 
       setMessage({
         type: 'success',
@@ -819,4 +813,3 @@ function AdminChallenges() {
 }
 
 export default AdminChallenges;
-
