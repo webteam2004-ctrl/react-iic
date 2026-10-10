@@ -458,8 +458,32 @@ function Gallery() {
                         }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        <span className="event-image-stack">
-                          <img src={item.images[0]} alt="" loading="lazy" />
+                        <span
+                          className={`event-image-stack${item.images.length > 1 ? " has-photo-stack" : ""}`}
+                        >
+                          {item.images.length > 1 &&
+                            item.images.slice(1, 2).map((image, index) => {
+                              const stackLevel = index + 1;
+                              return (
+                                <img
+                                  className="stack-photo"
+                                  key={image}
+                                  src={image}
+                                  alt=""
+                                  loading="lazy"
+                                  style={{
+                                    zIndex: stackLevel,
+                                    transform: `translate(${-stackLevel * 4}px, ${stackLevel * 4}px) rotate(${-stackLevel * 1.7}deg)`,
+                                  }}
+                                />
+                              );
+                            })}
+                          <img
+                            className="stack-cover"
+                            src={item.images[0]}
+                            alt=""
+                            loading="lazy"
+                          />
                           <span className="event-tag">
                             {categoryLabels[item.category] || item.category}
                           </span>

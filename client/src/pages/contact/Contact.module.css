@@ -139,6 +139,10 @@
   font-size: 19px;
 }
 
+.phone-icon {
+  transform: scaleX(-1);
+}
+
 .contact-card h3 {
   margin: 0 0 5px;
   color: #222;

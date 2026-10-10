@@ -1013,42 +1013,21 @@
   transition: transform 0.12s ease-out;
 }
 
-.gallery-page .event-image-stack::before,
-.gallery-page .event-image-stack::after {
+.gallery-page .event-image-stack .stack-photo {
   position: absolute;
-  z-index: 0;
   inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   border: 1px solid rgba(32, 38, 66, 0.08);
   border-radius: 22px;
-  content: "";
-  transition:
-    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 0.5s ease;
+  box-shadow: var(--gallery-shadow);
+  object-fit: cover;
 }
 
-.gallery-page .event-image-stack::before {
-  background: #e5e0ff;
-  transform: rotate(-2.6deg) translateY(5px);
-}
-
-.gallery-page .event-image-stack::after {
-  background: #dceff3;
-  transform: rotate(1.8deg) translateY(3px);
-}
-
-.gallery-page .gallery-item:hover .event-image-stack::before {
-  transform: rotate(-3.5deg) translate(-8px, 6px) scale(1.01);
-  box-shadow: 0 9px 20px rgba(77, 75, 150, 0.09);
-}
-
-.gallery-page .gallery-item:hover .event-image-stack::after {
-  transform: rotate(3.5deg) translate(8px, 4px) scale(1.01);
-  box-shadow: 0 9px 20px rgba(53, 110, 130, 0.09);
-}
-
-.gallery-page .event-image-stack > img {
+.gallery-page .event-image-stack .stack-cover {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   display: block;
   width: 100%;
   height: 100%;
@@ -1058,14 +1037,14 @@
   transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.gallery-page .gallery-item:hover .event-image-stack > img {
+.gallery-page .gallery-item:hover .event-image-stack .stack-cover {
   transform: translateZ(20px) scale(1.025);
 }
 
 .gallery-page .event-image-stack .event-tag,
 .gallery-page .event-image-stack .photo-tag {
   position: absolute;
-  z-index: 2;
+  z-index: 12;
   top: 14px;
   border: 1px solid transparent;
   font-size: 12px;

@@ -1,7 +1,4 @@
-/* ============================================================================
-   ACTIVE IMPLEMENTATION (Integrated from Desktop)
-   ============================================================================ */
-.wrap {
+:root {
   --iic-blue: #27358f;
   --iic-blue-dark: #182465;
   --iic-orange: #ef8f24;
@@ -9,6 +6,9 @@
   --paper: #fbf8f0;
   --ink: #20243c;
   --muted: #66677a;
+}
+
+.wrap {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
@@ -46,6 +46,9 @@
     linear-gradient(120deg, #fffaf2 0%, #ffffff 62%, #f4f5ff 100%);
   box-shadow: 0 22px 56px rgba(39, 53, 143, 0.1);
   text-align: center;
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  animation: introReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .intro::before,
@@ -66,6 +69,9 @@
   font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: introTextReveal 0.7s ease forwards 0.12s;
 }
 
 .intro h2 {
@@ -73,25 +79,210 @@
   margin: 0 auto;
   color: var(--iic-blue-dark);
   font-family: "Californian FB", "Baskerville Old Face", Georgia, serif;
-  font-size: clamp(1.2rem, 3.8vw, 3.2rem);
+  font-size: clamp(0.75rem, 4vw, 3.4rem);
   font-weight: 500;
-  line-height: 1.18;
+  line-height: 1.12;
   text-wrap: balance;
-  min-height: 2.36em;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: introTextReveal 0.8s ease forwards 0.22s;
 }
 
-.headingCursor {
+.quoteCursor {
   display: inline-block;
   width: 3.5px;
   height: 0.82em;
   margin-left: 6px;
   vertical-align: -0.04em;
   background: var(--iic-orange);
-  animation: blinkCaret 0.8s steps(1) infinite;
+  animation: quoteCursorBlink 0.8s steps(1) infinite;
 }
 
-@keyframes blinkCaret {
+.teamDirectory {
+  position: relative;
+}
 
+.yearFilter {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 24px;
+  perspective: 500px;
+}
+
+.yearFilterButton {
+  position: relative;
+  overflow: hidden;
+  min-width: 150px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  color: var(--iic-blue);
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(120deg, var(--iic-orange), var(--iic-blue)) border-box;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(39, 53, 143, 0.12);
+  font: inherit;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: color 0.25s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.yearFilterButton::after {
+  position: absolute;
+  top: -50%;
+  left: -65%;
+  width: 38%;
+  height: 200%;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(239, 143, 36, 0.2), transparent);
+  transform: rotate(18deg);
+  transition: left 0.65s ease;
+}
+
+.yearFilterButton:hover {
+  box-shadow: 0 13px 28px rgba(39, 53, 143, 0.18);
+  transform: translateY(-3px);
+}
+
+.yearFilterButton:hover::after {
+  left: 125%;
+}
+
+.yearFilterButton > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--iic-orange);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.yearFilterButton > span::before {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  content: "";
+  background: var(--iic-orange);
+  border: 3px solid rgba(239, 143, 36, 0.2);
+  border-radius: 50%;
+  background-clip: padding-box;
+  animation: yearDotPulse 1.8s ease-in-out infinite;
+}
+
+.yearFilterButton strong {
+  color: var(--iic-blue-dark);
+  font-size: 0.88rem;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.yearFilterButton i {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--iic-blue);
+  border-radius: 50%;
+  font-size: 0;
+  font-style: normal;
+  line-height: 1;
+  transition: background 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.yearFilterButton i svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yearFilterButton[aria-expanded="true"] {
+  box-shadow: 0 14px 30px rgba(39, 53, 143, 0.2);
+  transform: translateY(-2px);
+}
+
+.yearFilterButton[aria-expanded="true"] i {
+  background: var(--iic-orange);
+  transform: rotate(180deg);
+}
+
+.yearMenu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  width: 100%;
+  overflow: hidden;
+  padding: 7px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(39, 53, 143, 0.14);
+  border-radius: 13px;
+  box-shadow: 0 16px 34px rgba(39, 53, 143, 0.18);
+  transform-origin: top center;
+  animation: yearMenuIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.yearMenu button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  color: var(--iic-blue-dark);
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  transform: translateX(0);
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.yearMenu button:hover {
+  background: rgba(239, 143, 36, 0.1);
+  transform: translateX(3px);
+}
+
+.yearMenu button.selectedYear {
+  color: #fff;
+  background: var(--iic-blue);
+}
+
+.yearMenu button span {
+  color: var(--iic-orange);
+  animation: yearCheckIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes introReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes introTextReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes quoteCursorBlink {
   0%,
   100% {
     opacity: 1;
@@ -102,14 +293,99 @@
   }
 }
 
+@keyframes yearMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) rotateX(-12deg) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0) scale(1);
+  }
+}
+
+@keyframes yearDotPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 143, 36, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(239, 143, 36, 0.15);
+  }
+}
+
+@keyframes yearCheckIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-20deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.yearFilter button:focus-visible,
+.archiveEmpty button:focus-visible {
+  outline: 3px solid var(--iic-orange);
+  outline-offset: 2px;
+}
+
+.archiveEmpty {
+  max-width: 720px;
+  margin: 0 auto 100px;
+  padding: clamp(42px, 7vw, 78px) 28px;
+  background: #fffaf2;
+  border: 1px solid rgba(239, 143, 36, 0.25);
+  border-radius: 24px;
+  text-align: center;
+}
+
+.archiveEmpty p {
+  margin: 0 0 12px;
+  color: var(--iic-orange);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.archiveEmpty h2 {
+  margin: 0;
+  color: var(--iic-blue-dark);
+  font-family: "Bell MT", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 600;
+}
+
+.archiveEmpty button {
+  margin-top: 26px;
+  padding: 11px 22px;
+  color: #fff;
+  background: var(--iic-blue);
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.archiveEmpty button:hover {
+  background: var(--iic-orange);
+  transform: translateY(-2px);
+}
+
 .teamSection {
   position: relative;
   margin: 0 0 120px;
   opacity: 0;
-  transform: translateY(35px);
-  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-  backface-visibility: hidden;
+  transform: translateY(45px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
 }
 
 .teamSection.visible {
@@ -172,7 +448,7 @@
   line-height: 1;
 }
 
-.sectionText>p:last-child {
+.sectionText > p:last-child {
   max-width: 750px;
   margin: 0;
   color: var(--muted);
@@ -195,7 +471,6 @@
   scrollbar-width: thin;
   scrollbar-color: var(--iic-orange) rgba(39, 53, 143, 0.1);
   overscroll-behavior-inline: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 .memberRail::-webkit-scrollbar {
@@ -221,7 +496,6 @@
   border-radius: 28px;
   box-shadow: 0 14px 30px rgba(27, 34, 81, 0.12);
   opacity: 0;
-  will-change: transform;
   transform: translateX(30px);
   animation: cardIn 0.6s ease forwards;
   animation-delay: var(--card-delay);
@@ -254,10 +528,10 @@
 .memberFigure {
   position: relative;
   width: 100%;
-  height: 275px;
+  height: 260px;
   margin: 0;
   overflow: hidden;
-  background: #f8fafc;
+  background: #fff;
 }
 
 .memberFigure::after {
@@ -266,40 +540,20 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: 24%;
+  height: 62%;
   content: "";
   pointer-events: none;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.15) 30%,
-    rgba(255, 255, 255, 0.65) 70%,
+    rgba(255, 255, 255, 0.03) 12%,
+    rgba(255, 255, 255, 0.12) 26%,
+    rgba(255, 255, 255, 0.32) 44%,
+    rgba(255, 255, 255, 0.58) 62%,
+    rgba(255, 255, 255, 0.82) 78%,
+    rgba(255, 255, 255, 0.96) 92%,
     #fff 100%
   );
-}
-
-.coordinatorCard .memberFigure {
-  height: 255px;
-}
-
-.coordinatorCard .memberFigure::after {
-  height: 18%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.15) 45%,
-    rgba(255, 255, 255, 0.6) 80%,
-    #fff 100%
-  );
-}
-
-.coordinatorCard .memberBody {
-  margin-top: -30px;
-  min-height: 125px;
-}
-
-.coordinatorCard .memberImage {
-  filter: saturate(1);
 }
 
 .memberImage {
@@ -346,15 +600,65 @@
 .memberBody {
   position: relative;
   z-index: 2;
-  min-height: 110px;
+  min-height: 165px;
   display: flex;
   flex-direction: column;
-  margin-top: -30px;
-  padding: 10px 18px 14px;
+  margin-top: -70px;
+  padding: 14px 18px 14px;
+}
+
+.archiveCard .memberBody {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 98px;
+  justify-content: flex-start;
+  margin-top: 0;
+  padding: 18px 18px 22px;
+  text-align: center;
+}
+
+.archiveCard .memberHeader {
+  min-height: 0;
+  width: 100%;
+}
+
+.archiveCard .memberName {
+  font-size: 1.3rem;
+}
+
+.coordinatorCard .memberBody {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 98px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0;
+  padding: 14px 18px 16px;
+}
+
+.coordinatorCard .memberHeader {
+  min-height: 0;
+  min-width: 0;
+  flex: 1;
+}
+
+.coordinatorCard .memberMeta {
+  flex: 0 0 auto;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.coordinatorCard .socialLink:first-of-type {
+  margin-left: 0;
 }
 
 .memberHeader {
-  min-height: auto;
+  min-height: 62px;
   min-width: 0;
 }
 
@@ -387,7 +691,7 @@
   padding-top: 5px;
 }
 
-.memberMeta>div {
+.memberMeta > div {
   width: 54px;
   flex: 0 0 54px;
 }
@@ -482,13 +786,8 @@
   transform: translateY(-50%) scale(1.06);
 }
 
-.previous {
-  left: 4px;
-}
-
-.next {
-  right: 4px;
-}
+.previous { left: 4px; }
+.next { right: 4px; }
 
 @media (min-width: 1080px) {
   .memberRail.centered {
@@ -538,6 +837,14 @@
     border-radius: 22px;
   }
 
+  .yearFilter {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 150px;
+    margin: 0 12px 24px auto;
+  }
+
   .teamSection {
     margin-bottom: 90px;
   }
@@ -576,13 +883,8 @@
     display: grid;
   }
 
-  .previous {
-    left: -5px;
-  }
-
-  .next {
-    right: -5px;
-  }
+  .previous { left: -5px; }
+  .next { right: -5px; }
 
   .scrollHint {
     margin-right: 25px;
@@ -590,15 +892,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
+  .intro,
+  .intro p,
+  .intro h2,
+  .quoteCursor,
   .teamSection,
   .memberCard,
   .memberImage,
-  .railButton {
+  .railButton,
+  .yearFilterButton,
+  .yearFilterButton::after,
+  .yearFilterButton > span::before,
+  .yearMenu,
+  .yearMenu button,
+  .yearMenu button span {
     animation: none;
     transition: none;
   }
 
+  .intro,
+  .intro p,
+  .intro h2,
+  .quoteCursor,
   .teamSection,
   .memberCard {
     opacity: 1;

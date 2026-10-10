@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./Teams.module.css";
+
+const TEAM_QUOTE =
+	"“Your curiosity can start an idea. Our teamwork can turn it into a breakthrough.”";
 
 const teamData = {
 	team: [
@@ -69,21 +72,22 @@ const teamData = {
 			]
 		},
 		{
-			section: "Web Designing",
+			section: "Web Development",
 			description:
-				"The web designing team develops and maintains IIC's digital infrastructure. They create user-friendly websites, design interfaces, implement features, ensure responsive design, and provide technical solutions that enhance online user experience and accessibility.",
+				"The web development team builds and maintains IIC's digital infrastructure. They create user-friendly websites, design interfaces, implement features, ensure responsive design, and provide technical solutions that enhance online user experience and accessibility.",
 			reverse: false,
 			members: [
-				{ name: "Leela Chaitanya", role: "Web Head", initials: "LC", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/WA_1786806535851%20-%20Leela%20Chaitanya.jpg" },
+				{ name: "Leela Chaitanya", role: "Web Head", initials: "LC", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/WA_1786806535851%20-%20Leela%20Chaitanya.jpg", github: "https://github.com/chaitu64", linkedin: "https://www.linkedin.com/in/chunduri-leela-chaitanya-081537217/" },
 				{ name: "Harsha Vardhan J", role: "Web Member", initials: "HJ", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/file_00000000166c8211aa55d23f66eef0da%20-%20Harsha%20vardhan%20J.png" },
-				{ name: "Harini Sai", role: "Database", initials: "LC", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/Screenshot%202026-08-18%20004950.png", imgStyle: { transform: "scale(1.4)", objectPosition: "center 20%" } },
-				{ name: "Rishitha", role: "Frontend", initials: "K", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG_20260815_154627%20-%20KRishitha.jpg" },
-				{ name: "Siva Naik Mudavathu", role: "Designing(UI/UX)", initials: "MSN", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG-20260815-WA0024%20-%20Santosh%20Reddy.jpg" },
-				{ name: "Durga Vyshnavi Lingamneni", role: "Database", initials: "DL", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG_20260425_141215683_HDR_PORTRAIT%20-%20Durga%20vyshnavi%20Lingamneni.jpg" },
-				{ name: "Neha Latha", role: "Designing", initials: "NL", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/photo%20-%20Neha%20Latha.png" },
-				{ name: "Yasaswini Gorrepati", role: "Backend", initials: "YG", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/Screenshot%202026-08-15%20164723%20-%20yasaswini%20Gorrepati.png" },
-				{ name: "Revant Akurathi", role: "Frontend", initials: "RA", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/MY%20PHOTO%20-%20REVANT%20AKURATHI.png" },
-				{ name: "Santosh Reddi", role: "Backend", initials: "SR", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/mine.jpg" },
+				{ name: "Harini Sai", role: "Web Member", initials: "LC", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/Screenshot%202026-08-18%20004950.png", imgStyle: { transform: "scale(1.4)", objectPosition: "center 20%" }, github: "https://github.com/HARINISAI-18", linkedin: "https://www.linkedin.com/in/harini-sai18/" },
+				{ name: "Rishitha", role: "Web Member", initials: "K", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG_20260815_154627%20-%20KRishitha.jpg", github: "https://github.com/Rishitha0007", linkedin: "https://www.linkedin.com/in/rishitha-kattamuri-/" },
+				{ name: "Siva Naik Mudavathu", role: "Web Member", initials: "SR", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG-20260815-WA0024%20-%20Santosh%20Reddy.jpg", github: "https://github.com/SIVANAIK05", linkedin: "https://www.linkedin.com/in/siva-naik-mudavathu/" },
+				{ name: "Durga Vyshnavi Lingamneni", role: "Web Member", initials: "DL", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG_20260425_141215683_HDR_PORTRAIT%20-%20Durga%20vyshnavi%20Lingamneni.jpg", linkedin: "https://linkedin.com/in/durga-vyshnavi-lingamneni-a463a034a" },
+				{ name: "Neha Latha", role: "Web Member", initials: "NL", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/photo%20-%20Neha%20Latha.png", linkedin: "https://www.linkedin.com/in/meka-neha-latha-89744634a" },
+				{ name: "Yasaswini Gorrepati", role: "Web Member", initials: "YG", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/Screenshot%202026-08-15%20164723%20-%20yasaswini%20Gorrepati.png", linkedin: "https://www.linkedin.com/in/yasaswini-gorrepati-643572399" },
+				{ name: "Revant Akurathi", role: "Web Member", initials: "RA", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/MY%20PHOTO%20-%20REVANT%20AKURATHI.png", github: "https://github.com/revantak162-png", linkedin: "https://www.linkedin.com/in/revant-akurathi-641a33393/?isSelfProfile=true" },
+				{ name: "Santosh Reddi", role: "Web Member", initials: "SR", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/mine.jpg", github: "https://github.com/santoshreddi-631", linkedin: "https://www.linkedin.com/in/santoshreddi-22614cm003/" },
+
 			]
 		},
 		{
@@ -134,6 +138,78 @@ const teamData = {
 	]
 };
 
+const teamData2025 = {
+	team: [
+		{
+			section: "Draft Department",
+			description:
+				"The Draft Department supports IIC communication by preparing clear, structured content for initiatives, events, and official updates.",
+			reverse: false,
+			members: [
+				{ name: "Keerthi", initials: "K", image: "/teams/draft/keerthi.png" },
+				{ name: "Lakshmi", initials: "L", image: "/teams/draft/lakshmi.png" },
+				{ name: "Narayana", initials: "N", image: "/teams/draft/narayana.png" },
+				{ name: "Srujuna", initials: "S", image: "/teams/draft/srujuna.png" },
+			],
+		},
+		{
+			section: "Event Department",
+			description:
+				"The Event Department plans and coordinates IIC programs, managing activities and execution to create engaging experiences for participants.",
+			reverse: true,
+			members: [
+				{ name: "Jyothi", initials: "J", image: "/teams/event/jyothi.png" },
+				{ name: "Kalyan", initials: "K", image: "/teams/event/kalyan.png" },
+				{ name: "Prasanna", initials: "P", image: "/teams/event/prasanna.png" },
+				{ name: "Shabana", initials: "S", image: "/teams/event/shabana.png" },
+				{ name: "V Chaitu", initials: "VC", image: "/teams/event/vchaitu.png" },
+				{ name: "Veera", initials: "V", image: "/teams/event/veera.png" },
+			],
+		},
+		{
+			section: "Public Relations Department",
+			description:
+				"The Public Relations Department supports IIC outreach, communication, and engagement while helping build strong connections with the wider community.",
+			reverse: false,
+			members: [
+				{ name: "Bindu", initials: "B", image: "/teams/pr/bindu.png" },
+				{ name: "Jessy", initials: "J", image: "/teams/pr/jessy.png" },
+				{ name: "Nikhila", initials: "N", image: "/teams/pr/nikhila.png" },
+				{ name: "Nithin", initials: "N", image: "/teams/pr/nithin.png" },
+				{ name: "Rohit", initials: "R", image: "/teams/pr/rohit.png" },
+				{ name: "Subhani", initials: "S", image: "/teams/pr/subhani.png" },
+				{ name: "Udvika", initials: "U", image: "/teams/pr/udvika.png" },
+			],
+		},
+		{
+			section: "Social Media Department",
+			description:
+				"The Social Media Department shares IIC activities and achievements through engaging digital content while maintaining clear and consistent communication.",
+			reverse: true,
+			members: [
+				{ name: "Dinesh", initials: "D", image: "/teams/socialmedia/dinesh.png" },
+				{ name: "Jagadish", initials: "J", image: "/teams/socialmedia/jagadish.png" },
+				{ name: "Jayanth", initials: "J", image: "/teams/socialmedia/jayanth.png" },
+				{ name: "Manasa", initials: "M", image: "/teams/socialmedia/manasa.png" },
+				{ name: "Murali", initials: "M", image: "/teams/socialmedia/murali.png" },
+				{ name: "Thanuja", initials: "T", image: "/teams/socialmedia/thanuja.png" },
+			],
+		},
+		{
+			section: "Web Development",
+			description:
+				"The Web Development team builds and maintains IIC's digital presence, creating accessible and responsive experiences for the community.",
+			reverse: false,
+			members: [
+				{ name: "Chaitu", initials: "C", image: "/teams/web/chaitu.png" },
+				{ name: "Harsha", initials: "H", image: "/teams/web/harsha.png" },
+				{ name: "Navya", initials: "N", image: "/teams/web/navya.png" },
+				{ name: "Sarika", initials: "S", image: "/teams/web/sarika.png" },
+			],
+		},
+	],
+};
+
 function LinkedInIcon() {
 	return (
 		<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -150,19 +226,22 @@ function GitHubIcon() {
 	);
 }
 
-function MemberCard({ member, index, department }) {
+function MemberCard({ member, index, department, year }) {
 	const linkedinUrl =
 		member.linkedin ||
 		`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(member.name)}`;
 	const githubUrl =
 		member.github ||
 		`https://github.com/search?q=${encodeURIComponent(member.name)}&type=users`;
-	const isWebDevelopmentMember = department === "Web Development" || department === "Web Designing";
+	const isWebDevelopmentMember = department === "Web Development";
 	const isCoordinator = department === "IIC Co-ordinators";
+	const isArchiveMember = year === "2025";
 
 	return (
 		<article
-			className={`${styles.memberCard} ${isCoordinator ? styles.coordinatorCard : ""}`}
+			className={`${styles.memberCard} ${isArchiveMember ? styles.archiveCard : ""} ${
+				isCoordinator ? styles.coordinatorCard : ""
+			}`}
 			style={{ "--card-delay": `${Math.min(index, 7) * 70}ms` }}
 		>
 			<figure className={styles.memberFigure}>
@@ -189,48 +268,52 @@ function MemberCard({ member, index, department }) {
 			<div className={styles.memberBody}>
 				<div className={styles.memberHeader}>
 					<h3 className={styles.memberName}>{member.name}</h3>
-					<p className={styles.memberDepartment}>{member.role}</p>
-				</div>
-				<div className={styles.memberMeta}>
-					{!isCoordinator && (
-						<>
-							<div>
-								<span>Year</span>
-								<strong>{member.year || "—"}</strong>
-							</div>
-							<div>
-								<span>Branch</span>
-								<strong>{member.branch || "—"}</strong>
-							</div>
-						</>
+					{!isArchiveMember && (
+						<p className={styles.memberDepartment}>{member.role}</p>
 					)}
-					<a
-						className={styles.socialLink}
-						href={linkedinUrl}
-						target="_blank"
-						rel="noreferrer"
-						aria-label={`Find ${member.name} on LinkedIn`}
-					>
-						<LinkedInIcon />
-					</a>
-					{isWebDevelopmentMember && (
+				</div>
+				{!isArchiveMember && (
+					<div className={styles.memberMeta}>
+						{!isCoordinator && (
+							<>
+								<div>
+									<span>Year</span>
+									<strong>{member.year || "—"}</strong>
+								</div>
+								<div>
+									<span>Branch</span>
+									<strong>{member.branch || "—"}</strong>
+								</div>
+							</>
+						)}
 						<a
 							className={styles.socialLink}
-							href={githubUrl}
+							href={linkedinUrl}
 							target="_blank"
 							rel="noreferrer"
-							aria-label={`Find ${member.name} on GitHub`}
+							aria-label={`Find ${member.name} on LinkedIn`}
 						>
-							<GitHubIcon />
+							<LinkedInIcon />
 						</a>
-					)}
-				</div>
+						{isWebDevelopmentMember && (
+							<a
+								className={styles.socialLink}
+								href={githubUrl}
+								target="_blank"
+								rel="noreferrer"
+								aria-label={`Find ${member.name} on GitHub`}
+							>
+								<GitHubIcon />
+							</a>
+						)}
+					</div>
+				)}
 			</div>
 		</article>
 	);
 }
 
-function TeamSection({ section, index }) {
+function TeamSection({ section, index, year }) {
 	const sectionRef = React.useRef(null);
 	const railRef = React.useRef(null);
 
@@ -245,7 +328,7 @@ function TeamSection({ section, index }) {
 					observer.disconnect();
 				}
 			},
-			{ threshold: 0.06 },
+			{ threshold: 0.12 },
 		);
 		observer.observe(element);
 		return () => observer.disconnect();
@@ -288,6 +371,7 @@ function TeamSection({ section, index }) {
 							member={member}
 							index={memberIndex}
 							department={section.section}
+							year={year}
 						/>
 					))}
 				</div>
@@ -304,53 +388,112 @@ function TeamSection({ section, index }) {
 	);
 }
 
-export default function Teams() {
-	const [typedTitle, setTypedTitle] = useState("");
-	const [typingFinished, setTypingFinished] = useState(false);
-	const typedHeadline =
-		"“Your curiosity can start an idea. Our teamwork can turn it into a breakthrough.”";
-	const breakIndex = typedHeadline.indexOf(" Our teamwork");
+function YearFilter({ selectedYear, onChange }) {
+	const [isOpen, setIsOpen] = React.useState(false);
 
-	useEffect(() => {
+	const chooseYear = (year) => {
+		onChange(year);
+		setIsOpen(false);
+	};
+
+	return (
+		<div className={styles.yearFilter}>
+			<button
+				type="button"
+				className={styles.yearFilterButton}
+				aria-haspopup="listbox"
+				aria-expanded={isOpen}
+				onClick={() => setIsOpen((open) => !open)}
+			>
+				<span>Year</span>
+				<strong>{selectedYear}</strong>
+				<i aria-hidden="true">
+					<svg viewBox="0 0 20 20">
+						<path d="M5 7.5 10 12.5 15 7.5" />
+					</svg>
+				</i>
+			</button>
+			{isOpen && (
+				<div className={styles.yearMenu} role="listbox" aria-label="Select team year">
+					{["2026", "2025"].map((year) => (
+						<button
+							type="button"
+							key={year}
+							role="option"
+							aria-selected={selectedYear === year}
+							className={selectedYear === year ? styles.selectedYear : ""}
+							onClick={() => chooseYear(year)}
+						>
+							{year}
+							{selectedYear === year && <span aria-hidden="true">✓</span>}
+						</button>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
+export default function Teams() {
+	const [selectedYear, setSelectedYear] = React.useState("2026");
+	const [typedQuote, setTypedQuote] = React.useState("");
+	const [typingFinished, setTypingFinished] = React.useState(false);
+
+	React.useEffect(() => {
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			setTypedQuote(TEAM_QUOTE);
+			setTypingFinished(true);
+			return undefined;
+		}
+
 		if (typingFinished) return undefined;
-		if (typedTitle.length >= typedHeadline.length) {
+		if (typedQuote.length >= TEAM_QUOTE.length) {
 			setTypingFinished(true);
 			return undefined;
 		}
 
 		const timer = window.setTimeout(() => {
-			setTypedTitle(typedHeadline.slice(0, typedTitle.length + 1));
-		}, 28);
+			setTypedQuote(TEAM_QUOTE.slice(0, typedQuote.length + 1));
+		}, 32);
 
 		return () => window.clearTimeout(timer);
-	}, [typedHeadline, typedTitle, typingFinished]);
+	}, [typedQuote, typingFinished]);
 
 	return (
 		<div className={styles.wrap}>
 			<main className={styles.main}>
 				<div className={styles.intro}>
 					<p>Our Teams</p>
-					<h2>
-						<span>
-							{typedTitle.length <= breakIndex
-								? typedTitle
-								: typedTitle.slice(0, breakIndex)}
-						</span>
-						{typedTitle.length > breakIndex && (
-							<>
-								<br />
-								<span>{typedTitle.slice(breakIndex).trimStart()}</span>
-							</>
-						)}
+					<h2 aria-label={TEAM_QUOTE}>
+						{typedQuote}
 						{!typingFinished && (
-							<span className={styles.headingCursor} aria-hidden="true" />
+							<span className={styles.quoteCursor} aria-hidden="true" />
 						)}
 					</h2>
 				</div>
 
-				{teamData.team.map((section, index) => (
-					<TeamSection key={section.section} section={section} index={index} />
-				))}
+				<div className={styles.teamDirectory}>
+					<YearFilter selectedYear={selectedYear} onChange={setSelectedYear} />
+					{selectedYear === "2026" ? (
+						teamData.team.map((section, index) => (
+							<TeamSection
+								key={section.section}
+								section={section}
+								index={index}
+								year="2026"
+							/>
+						))
+					) : (
+						teamData2025.team.map((section, index) => (
+							<TeamSection
+								key={section.section}
+								section={section}
+								index={index}
+								year="2025"
+							/>
+						))
+					)}
+				</div>
 			</main>
 		</div>
 	);

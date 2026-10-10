@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import styles from './Home.module.css';
 import { Link } from 'react-router-dom';
-import { motion, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import AccordionGallery from '../components/AccordionGallery';
 import AutoScrollGallery from '../components/AutoScrollGallery';
 import {
@@ -221,7 +220,7 @@ function useWindowWidth() {
   return width;
 }
 
-function RoadmapItem({ act, index, progress, isMobile, windowWidth }) {
+function RoadmapItem({ act, index, isInView, isMobile, windowWidth }) {
   const IconComp = act.icon;
 
   // Symmetrical offset factor relative to center item (index 2: Idea Competitions)
@@ -244,21 +243,25 @@ function RoadmapItem({ act, index, progress, isMobile, windowWidth }) {
   // Subtle angular tilt when spread out (-7deg to +7deg), settling to 0deg
   const startRotate = isMobile ? 0 : offsetFactor * 3.5;
 
-  const x = useTransform(progress, [0, 1], [startX, 0], { clamp: true });
-  const y = useTransform(progress, [0, 1], [startY, 0], { clamp: true });
-  const rotate = useTransform(progress, [0, 1], [startRotate, 0], { clamp: true });
-  const scale = useTransform(progress, [0, 1], [0.84, 1], { clamp: true });
-  const opacity = useTransform(progress, [0, 0.25, 1], [0.25, 0.75, 1], { clamp: true });
-
   return (
     <motion.div
       className={styles['roadmap-item-wrapper']}
-      style={{
-        x,
-        y,
-        rotate,
-        scale,
-        opacity
+      initial={{
+        x: startX,
+        y: startY,
+        rotate: startRotate,
+        scale: 0.84,
+        opacity: 0
+      }}
+      animate={
+        isInView
+          ? { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 }
+          : undefined
+      }
+      transition={{
+        duration: 0.8,
+        delay: index * 0.12,
+        ease: [0.22, 1, 0.36, 1]
       }}
     >
       <Link
@@ -286,40 +289,29 @@ function RoadmapItem({ act, index, progress, isMobile, windowWidth }) {
 
 function RoadmapTrack() {
   const containerRef = useRef(null);
+  const isInView = useInView(containerRef, {
+    once: true,
+    margin: "0px 0px -10% 0px"
+  });
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth <= 900;
-
-  // Scroll tracking: as user scrolls down into key activities, categories converge together
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 95%", "center 52%"]
-  });
-
-  // Silky smooth spring physics
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 95,
-    damping: 22,
-    mass: 0.5,
-    restDelta: 0.001
-  });
-
-  // Connecting line scales outward from center as items converge
-  const lineScale = useTransform(smoothProgress, [0.15, 1], [0, 1], { clamp: true });
-  const lineOpacity = useTransform(smoothProgress, [0.15, 0.45, 1], [0, 0.2, 0.35], { clamp: true });
 
   return (
     <div ref={containerRef} className={styles['roadmap-container']}>
       <div className={styles['roadmap-track']}>
-        {/* Animated Connecting Track Line that expands outward from center as items converge */}
         <motion.div
           className={styles['roadmap-line']}
-          style={{
-            scaleX: isMobile ? 1 : lineScale,
-            scaleY: isMobile ? lineScale : 1,
-            opacity: lineOpacity,
-            originX: 0.5,
-            originY: 0.5
+          initial={{
+            scaleX: isMobile ? 1 : 0,
+            scaleY: isMobile ? 0 : 1,
+            opacity: 0
           }}
+          animate={
+            isInView
+              ? { scaleX: 1, scaleY: 1, opacity: 0.35 }
+              : undefined
+          }
+          transition={{ duration: 0.8, ease: "easeOut" }}
           aria-hidden="true"
         >
           <div className={styles['roadmap-line-pulse']} />
@@ -330,7 +322,7 @@ function RoadmapTrack() {
             key={act.id}
             act={act}
             index={index}
-            progress={smoothProgress}
+            isInView={isInView}
             isMobile={isMobile}
             windowWidth={windowWidth}
           />
@@ -410,72 +402,179 @@ const WHO_WE_ARE_KEY_POINTS = [
   }
 ];
 
+const HERO_TITLE = 'Sapere aude';
+const HOVER_HERO_TITLE = 'Dare to Know';
+const SHUFFLE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const SCRAMBLE_CHARACTERS = '!<>-_\\/[]{}—=+*^?#________';
+
+function ScrambledText({ text, className, as: TextElement = 'p' }) {
+  const characters = Array.from(text);
+  const characterElements = useRef([]);
+  const activeUntil = useRef([]);
+  const intervalId = useRef(null);
+  const [scrambledCharacters, setScrambledCharacters] = useState(characters);
+
+  useEffect(() => () => window.clearInterval(intervalId.current), []);
+
+  const handlePointerMove = (event) => {
+    if (
+      event.pointerType === 'touch' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+
+    const now = Date.now();
+    characterElements.current.forEach((element, index) => {
+      if (!element || characters[index] === '\n' || characters[index].trim() === '') {
+        return;
+      }
+
+      const bounds = element.getBoundingClientRect();
+      const deltaX = event.clientX - (bounds.left + bounds.width / 2);
+      const deltaY = event.clientY - (bounds.top + bounds.height / 2);
+      if (Math.hypot(deltaX, deltaY) < 90) {
+        activeUntil.current[index] = now + 650;
+      }
+    });
+
+    if (intervalId.current !== null) {
+      return;
+    }
+
+    intervalId.current = window.setInterval(() => {
+      const tickTime = Date.now();
+      let hasActiveCharacters = false;
+      const nextCharacters = characters.map((character, index) => {
+        if (character.trim() === '' || (activeUntil.current[index] || 0) <= tickTime) {
+          return character;
+        }
+
+        hasActiveCharacters = true;
+        return SCRAMBLE_CHARACTERS[
+          Math.floor(Math.random() * SCRAMBLE_CHARACTERS.length)
+        ];
+      });
+
+      setScrambledCharacters(nextCharacters);
+      if (!hasActiveCharacters) {
+        window.clearInterval(intervalId.current);
+        intervalId.current = null;
+      }
+    }, 45);
+  };
+
+  return (
+    <TextElement className={className} onPointerMove={handlePointerMove}>
+      <span className={styles['scrambled-text-content']} aria-hidden="true">
+        {scrambledCharacters.map((character, index) => (
+          character === '\n' ? (
+            <br key={index} />
+          ) : (
+            <span
+              key={index}
+              ref={(element) => {
+                characterElements.current[index] = element;
+              }}
+            >
+              {character}
+            </span>
+          )
+        ))}
+      </span>
+      <span className={styles['sr-only']}>{text.replace(/\n/g, ' ')}</span>
+    </TextElement>
+  );
+}
+
 function Home() {
-  const [showPopup, setShowPopup] = useState(false);
   const [activeWhoTab, setActiveWhoTab] = useState('mission');
+  const [isHeroTitleActive, setIsHeroTitleActive] = useState(false);
+  const [heroTitleTarget, setHeroTitleTarget] = useState(null);
+  const [heroTitle, setHeroTitle] = useState(HERO_TITLE);
   const currentTab = WHO_WE_ARE_TABS.find((t) => t.id === activeWhoTab) || WHO_WE_ARE_TABS[0];
   const CurrentTabIcon = currentTab.icon;
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedPopup');
-    if (!hasVisited) {
-      setShowPopup(true);
-      localStorage.setItem('hasVisitedPopup', 'true');
+    if (!heroTitleTarget) {
+      return undefined;
     }
-  }, []);
 
-  useEffect(() => {
-    if (showPopup) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setHeroTitle(heroTitleTarget);
+      return undefined;
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showPopup]);
+
+    let revealedCharacters = 0;
+    const intervalId = window.setInterval(() => {
+      revealedCharacters += 1;
+      const shuffledTitle = heroTitleTarget
+        .split('')
+        .map((character, index) => {
+          if (character === ' ' || index < revealedCharacters) {
+            return character;
+          }
+
+          return SHUFFLE_CHARACTERS[
+            Math.floor(Math.random() * SHUFFLE_CHARACTERS.length)
+          ];
+        })
+        .join('');
+
+      setHeroTitle(shuffledTitle);
+
+      if (revealedCharacters >= heroTitleTarget.length) {
+        window.clearInterval(intervalId);
+      }
+    }, 35);
+
+    return () => window.clearInterval(intervalId);
+  }, [heroTitleTarget]);
 
   return (
     <div className={styles.wrap}>
 
-      {showPopup && createPortal(
-        <div className={styles['popup-overlay']} onClick={() => setShowPopup(false)}>
-          <div className={styles['popup-content']} onClick={(e) => e.stopPropagation()}>
-            <button className={styles['popup-close']} onClick={() => setShowPopup(false)}>×</button>
-            {/* Background Image Container */}
-            <div className={styles['sih-banner-container']}>
-              <img
-                src="https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SIH2026/Screenshot%202026-08-21%20161227_imgupscaler.ai_General_4K.jpg"
-                alt="SIH Banner"
-                className={styles['sih-banner-img']}
-              />
-            </div>
-
-
-            <Link to="/events" className={styles['popup-cta']} onClick={() => setShowPopup(false)}>
-              Register Now
-            </Link>
-          </div>
-        </div>,
-        document.body
-      )}
-
       <section className={styles.hero} aria-label="Welcome to VVITU Innovation Council">
         <div className={styles['hero-copy']}>
-          <h1 className={styles['hero-title']}>
-            Sapere aude<span className={styles['hero-title-dot']}>.</span>
+          <h1
+            className={styles['hero-title']}
+            aria-label={isHeroTitleActive ? HOVER_HERO_TITLE : `${HERO_TITLE}.`}
+            tabIndex={0}
+            onMouseEnter={() => {
+              setIsHeroTitleActive(true);
+              setHeroTitleTarget(HOVER_HERO_TITLE);
+            }}
+            onMouseLeave={() => {
+              setIsHeroTitleActive(false);
+              setHeroTitleTarget(HERO_TITLE);
+            }}
+            onFocus={() => {
+              setIsHeroTitleActive(true);
+              setHeroTitleTarget(HOVER_HERO_TITLE);
+            }}
+            onBlur={() => {
+              setIsHeroTitleActive(false);
+              setHeroTitleTarget(HERO_TITLE);
+            }}
+          >
+            <span aria-hidden="true">{heroTitle}</span>
+            {!isHeroTitleActive && (
+              <span className={styles['hero-title-dot']} aria-hidden="true">.</span>
+            )}
           </h1>
-          <p className={styles['hero-lead']}>
-            Have the courage to imagine<br />
-            what does not yet exist.
-          </p>
-          <blockquote className={styles['hero-quote']}>
-            Knowing is not enough; we must apply.<br />
-            Willing is not enough; we must do.
-          </blockquote>
-          <p className={styles['hero-subtitle']}>
-            The future is built by people who refuse to call today's limitations permanent.
-          </p>
+          <ScrambledText
+            className={styles['hero-lead']}
+            text={'Have the courage to imagine\nwhat does not yet exist.'}
+          />
+          <ScrambledText
+            as="blockquote"
+            className={styles['hero-quote']}
+            text={'Knowing is not enough; we must apply.\nWilling is not enough; we must do.'}
+          />
+          <ScrambledText
+            className={styles['hero-subtitle']}
+            text={"The future is built by people who refuse\nto call today's limitations permanent"}
+          />
         </div>
 
         <div className={styles['hero-image-wrap']}>
@@ -704,7 +803,7 @@ function Home() {
               <p className={styles['idea-hub-lead']}>
                 Share the first version. It doesn’t need to be polished. The next step can begin with a conversation.
               </p>
-              <Link to="/contact" className={styles['idea-btn-submit']}>
+              <Link to="/ideahub" className={styles['idea-btn-submit']}>
                 <span>Submit Your Idea</span>
                 <ArrowRight size={18} className={styles['btn-arrow-anim']} />
               </Link>
