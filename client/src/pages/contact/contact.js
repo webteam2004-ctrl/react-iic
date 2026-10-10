@@ -15,19 +15,6 @@ import {
 } from 'react-icons/fa';
 import styles from './Contact.module.css';
 
-// Animation variants for smooth on-load and on-scroll reveals
-const heroContainerVariants = {
-	hidden: { opacity: 0 },
-	visible: {
-		opacity: 1,
-		transition: {
-			staggerChildren: 0.15,
-			delayChildren: 0.1
-		}
-	}
-};
-
-
 const scrollSectionVariants = {
 	hidden: { opacity: 0, y: 28 },
 	visible: {
@@ -58,57 +45,10 @@ const cardItemVariants = {
 };
 
 function Contact() {
-	const [typedTitle, setTypedTitle] = React.useState("");
-	const [typingFinished, setTypingFinished] = React.useState(false);
-	const typedHeadline =
-		"“Your curiosity can start an idea. Let's connect and turn it into a breakthrough.”";
-	const breakIndex = typedHeadline.indexOf(" Let's connect");
-
-	React.useEffect(() => {
-		if (typingFinished) return undefined;
-		if (typedTitle.length >= typedHeadline.length) {
-			setTypingFinished(true);
-			return undefined;
-		}
-
-		const timer = window.setTimeout(() => {
-			setTypedTitle(typedHeadline.slice(0, typedTitle.length + 1));
-		}, 28);
-
-		return () => window.clearTimeout(timer);
-	}, [typedHeadline, typedTitle, typingFinished]);
-
 	return (
 		<div className={styles.wrap}>
 
 			<main>
-
-				{/* ================= HERO (MATCHING REFERENCE IMAGE) ================= */}
-				<motion.section
-					className={styles['hero-contact']}
-					initial='hidden'
-					animate='visible'
-					variants={heroContainerVariants}
-				>
-					<p className={styles['hero-eyebrow']}>CONTACT US</p>
-					<h2 className={styles['hero-headline']}>
-						<span>
-							{typedTitle.length <= breakIndex
-								? typedTitle
-								: typedTitle.slice(0, breakIndex)}
-						</span>
-						{typedTitle.length > breakIndex && (
-							<>
-								<br />
-								<span>{typedTitle.slice(breakIndex).trimStart()}</span>
-							</>
-						)}
-						{!typingFinished && (
-							<span className={styles['headingCursor']} aria-hidden='true' />
-						)}
-					</h2>
-				</motion.section>
-
 
 				{/* ================= CONTACT CARDS (ON-SCROLL STAGGER) ================= */}
 				<motion.section
@@ -163,7 +103,7 @@ function Contact() {
 						whileHover={{ y: -4, transition: { duration: 0.2 } }}
 					>
 						<div className={styles['contact-icon']}>
-							<FaPhone />
+							<FaPhone className={styles['phone-icon']} />
 						</div>
 						<div>
 							<h3>Call Us</h3>
@@ -341,12 +281,12 @@ function Contact() {
 							transition={{ duration: 0.5 }}
 						>
 							<iframe
-								src='https://maps.google.com/maps?q=Vasireddy%20Venkatadri%20Institute%20of%20Technology%2C%20Nambur&t=&z=15&ie=UTF8&iwloc=&output=embed'
+								src='https://www.google.com/maps?q=16.3441622,80.524442&z=17&output=embed'
 								width='100%'
 								height='100%'
 								style={{ border: 0 }}
 								allowFullScreen
-								loading='lazy'
+								loading='eager'
 								referrerPolicy='no-referrer-when-downgrade'
 								title='VVITU University Map'
 							></iframe>

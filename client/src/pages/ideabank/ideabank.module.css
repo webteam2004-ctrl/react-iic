@@ -221,12 +221,11 @@
   border: none;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(243, 146, 0, 0.28);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 }
 
 .editorialPrimaryBtn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 12px 28px rgba(243, 146, 0, 0.38);
 }
 
@@ -264,7 +263,10 @@
   transition: transform 0.2s ease;
 }
 
-.editorialPrimaryBtn:hover .btnArrow,
+.editorialPrimaryBtn:hover .btnArrow {
+  transform: translateX(4px);
+}
+
 /* Center Vertical Divider */
 .heroCenterDivider {
   width: 1px;
@@ -814,17 +816,13 @@
 }
 
 /* Submit Actions */
-.submitRow {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 6px;
-}
+
 
 .submitBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  
   background: linear-gradient(135deg, #F39200 0%, #EA580C 100%);
   color: #FFFFFF;
   padding: 15px 38px;
@@ -835,17 +833,12 @@
   border: none;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(243, 146, 0, 0.28);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  
 }
 
-.submitBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(243, 146, 0, 0.38);
-}
 
-.submitBtn:active {
-  transform: translateY(0);
-}
+
+
 
 /* Success Card */
 .successCard {
@@ -1265,9 +1258,7 @@
     grid-template-columns: 1fr;
   }
 
-  .submitRow {
-    justify-content: stretch;
-  }
+  
 
   .submitBtn {
     width: 100%;
