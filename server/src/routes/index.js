@@ -16,6 +16,7 @@ api.use("/events", eventRoutes);
 api.use("/calendar", calendarRoutes);
 api.use("/gallery", galleryRoutes);
 api.use("/team", teamRoutes);
+api.use("/teams", teamRoutes); // Alias for plural endpoint consistency
 api.use("/challenges", challengeRoutes);
 api.use("/idea-hub", challengeRoutes); // Alias for Idea Hub module
 

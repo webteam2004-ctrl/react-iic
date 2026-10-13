@@ -1,4 +1,12 @@
+import multer from "multer";
 import { supabase } from "../config/supabase.js";
+import {
+    filenameFromImagePath,
+    identifyImage,
+    publicImageUrl,
+    removeImage,
+    saveImage
+} from "../services/mediaStorage.service.js";
 
 // Upload / Create Gallery Record
 export const createGalleryImage = async (req, res) => {
@@ -80,12 +88,14 @@ export const getAllGalleryImages = async (req, res) => {
             caption: img.caption,
             images: [img.image_url],
             image_url: img.image_url,
+            public_url: publicImageUrl(req, img.image_url),
             date: img.created_at
         }));
 
         return res.status(200).json({
             success: true,
-            galleryImages: formattedImages
+            galleryImages: formattedImages,
+            gallery: formattedImages
         });
     } catch (error) {
         console.error("[Gallery] Unexpected error:", error);
@@ -146,17 +156,34 @@ export const deleteGalleryImage = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { error, count } = await supabase
+        const { data: existing, error: fetchError } = await supabase
             .from("gallery")
-            .delete({ count: "exact" })
+            .select("id, image_url")
+            .eq("id", id)
+            .maybeSingle();
+
+        if (fetchError) throw fetchError;
+        if (!existing) {
+            return res.status(404).json({ success: false, message: "Gallery image not found" });
+        }
+
+        const { error } = await supabase
+            .from("gallery")
+            .delete()
             .eq("id", id);
 
         if (error) throw error;
-        if (count === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Gallery image not found"
-            });
+
+        const filename = filenameFromImagePath(existing.image_url);
+        if (filename) {
+            const { count: references, error: referenceError } = await supabase
+                .from("gallery")
+                .select("id", { count: "exact", head: true })
+                .eq("image_url", existing.image_url);
+            if (referenceError) throw referenceError;
+            if (!references) {
+                await removeImage(filename);
+            }
         }
 
         return res.status(200).json({
@@ -167,6 +194,66 @@ export const deleteGalleryImage = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Internal server error"
+        });
+    }
+};
+
+export const uploadGalleryImages = async (req, res) => {
+    const savedFiles = [];
+    try {
+        if (!req.files?.length) {
+            return res.status(400).json({ success: false, message: "Select at least one image to upload" });
+        }
+
+        const eventId = req.body.event_id ? Number(req.body.event_id) : null;
+        if (eventId !== null && !Number.isInteger(eventId)) {
+            return res.status(400).json({ success: false, message: "Invalid event ID" });
+        }
+
+        let captions = [];
+        if (req.body.captions) {
+            try {
+                captions = Array.isArray(req.body.captions) ? req.body.captions : JSON.parse(req.body.captions);
+            } catch {
+                return res.status(400).json({ success: false, message: "Captions must be a JSON array" });
+            }
+        }
+        if (!Array.isArray(captions)) {
+            return res.status(400).json({ success: false, message: "Captions must be a JSON array" });
+        }
+
+        const records = [];
+        for (const [index, file] of req.files.entries()) {
+            const signature = identifyImage(file.buffer);
+            if (!signature || signature.mime !== file.mimetype) {
+                return res.status(400).json({ success: false, message: `Invalid image contents for ${file.originalname}` });
+            }
+            const stored = await saveImage(file.buffer, signature);
+            savedFiles.push(stored);
+            records.push({
+                image_url: stored.relativePath,
+                caption: String(captions[index] || "").trim(),
+                event_id: eventId
+            });
+        }
+
+        const { data, error } = await supabase.from("gallery").insert(records).select();
+        if (error) throw error;
+
+        return res.status(201).json({
+            success: true,
+            message: `${records.length} image${records.length === 1 ? "" : "s"} uploaded successfully`,
+            galleryImages: (data || []).map((item) => ({
+                ...item,
+                public_url: publicImageUrl(req, item.image_url)
+            }))
+        });
+    } catch (error) {
+        await Promise.allSettled(savedFiles.map((file) => removeImage(file.filename)));
+        console.error("[Gallery] Upload error:", error);
+        return res.status(error instanceof multer.MulterError ? 400 : 500).json({
+            success: false,
+            message: error.message || "Failed to upload images"
         });
     }
 };

@@ -3,6 +3,7 @@
 // ============================================================================
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { api, resolveMediaUrl } from "../../services/api";
 import "./Gallery.css";
 
 const galleryData = [
@@ -94,6 +95,7 @@ const photoTotal = galleryData.reduce(
 );
 
 function Gallery() {
+  const [uploadedGallery, setUploadedGallery] = useState([]);
   const [filter, setFilter] = useState("all");
   const [modal, setModal] = useState({ open: false, event: null, photoIdx: 0 });
   const [coverIndex, setCoverIndex] = useState(0);
@@ -101,18 +103,36 @@ function Gallery() {
   const [typingFinished, setTypingFinished] = useState(false);
   const pointerStart = useRef(null);
   const didSwipe = useRef(false);
-  const featuredGallery = galleryData.slice(0, 7);
+  const displayGallery = [...galleryData, ...uploadedGallery];
+  const featuredGallery = displayGallery.slice(0, 7);
   const typedHeadline =
     "Every photo tells a story of an idea brought to life. Explore, engage, and innovate.";
   const typedLeadEnd = typedHeadline.indexOf(" Explore,");
 
-  const filteredGallery = galleryData.filter((item) => {
+  const filteredGallery = displayGallery.filter((item) => {
     const categoryMatch = filter === "all" || item.category === filter;
     return categoryMatch;
   });
-  const visibleYears = galleryYears.filter((eventYear) =>
+  const visibleYears = [...new Set(displayGallery.map((item) => item.year))].filter((eventYear) =>
     filteredGallery.some((item) => item.year === eventYear),
   );
+
+  useEffect(() => {
+    let mounted = true;
+    api.gallery.getAll().then((response) => {
+      const uploaded = (response.galleryImages || []).map((image) => ({
+        id: `uploaded-${image.id}`,
+        year: image.created_at ? new Date(image.created_at).getFullYear().toString() : "2026",
+        category: "uploaded",
+        title: image.caption || "IIC Gallery",
+        date: image.created_at ? new Date(image.created_at).toLocaleDateString() : "Recently",
+        description: image.caption || "Images from the Institution's Innovation Council.",
+        images: [resolveMediaUrl(image.public_url || image.image_url)],
+      }));
+      if (mounted) setUploadedGallery(uploaded);
+    }).catch((error) => console.warn("[Gallery] Could not fetch uploaded images:", error));
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     if (typingFinished) return undefined;
@@ -278,7 +298,7 @@ function Gallery() {
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.div whileHover={{ y: -4, transition: { duration: 0.2 } }}>
-              <strong className="stat-yellow">{galleryData.length}</strong>
+              <strong className="stat-yellow">{displayGallery.length}</strong>
               <span>Events</span>
             </motion.div>
             <motion.div whileHover={{ y: -4, transition: { duration: 0.2 } }}>
