@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabase.js";
+import { publicImageUrl } from "../services/mediaStorage.service.js";
 
 /**
  * Helper to normalize event dates/times into start_time & end_time
@@ -99,9 +100,31 @@ export const getAllEvents = async (req, res) => {
 
         if (error) throw error;
 
+        const eventIds = (events || []).map((event) => event.id);
+        let galleryByEvent = {};
+        if (eventIds.length > 0) {
+            const { data: images, error: imageError } = await supabase
+                .from("gallery")
+                .select("id, event_id, image_url, caption, created_at")
+                .in("event_id", eventIds)
+                .order("created_at", { ascending: true });
+            if (imageError) throw imageError;
+            galleryByEvent = (images || []).reduce((groups, image) => {
+                groups[image.event_id] = groups[image.event_id] || [];
+                groups[image.event_id].push({ ...image, public_url: publicImageUrl(req, image.image_url) });
+                return groups;
+            }, {});
+        }
+
+        const eventsWithGallery = (events || []).map((event) => ({
+            ...event,
+            gallery: galleryByEvent[event.id] || [],
+            cover_image: (galleryByEvent[event.id] || [])[0] || null
+        }));
+
         return res.status(200).json({
             success: true,
-            events: events || []
+            events: eventsWithGallery
         });
     } catch (error) {
         console.error("[Events] Get all error:", error);
@@ -136,11 +159,17 @@ export const getEventById = async (req, res) => {
             .select("*")
             .eq("event_id", id);
 
+        const gallery = (linkedGallery || []).map((image) => ({
+            ...image,
+            public_url: publicImageUrl(req, image.image_url)
+        }));
+
         return res.status(200).json({
             success: true,
             event: {
                 ...event,
-                gallery: linkedGallery || []
+                gallery,
+                cover_image: gallery[0] || null
             }
         });
     } catch (error) {

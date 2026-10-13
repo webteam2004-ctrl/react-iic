@@ -3,6 +3,7 @@
 // ============================================================================
 import { useEffect, useState } from "react";
 import styles from "./Events.module.css";
+import { api, resolveMediaUrl } from "../../services/api";
 
 const classNames = (...names) =>
   names.filter(Boolean).map((name) => styles[name]).join(" ");
@@ -15,7 +16,7 @@ const categories = [
   "Technical Events",
 ];
 
-const events = [
+const staticEvents = [
   {
     id: "h1",
     category: "Hackathons",
@@ -177,10 +178,56 @@ function EventConnector({ reverse }) {
 export default function Events() {
   const [activeFilter, setActiveFilter] =
     useState("All Events");
+  const [eventsList, setEventsList] = useState(staticEvents);
   const [typedTitle, setTypedTitle] = useState("");
   const [typingFinished, setTypingFinished] = useState(false);
   const typedHeadline = "Dream it. Challenge it. Make it happen.";
   const breakIndex = "Dream it. Challenge it.".length;
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadEvents() {
+      try {
+        const res = await api.events.getAll();
+        if (res && res.success && Array.isArray(res.events) && res.events.length > 0) {
+          const dbItems = res.events
+            .filter((e) => e.status !== "archived")
+            .map((e) => {
+              const d = e.start_time ? new Date(e.start_time) : null;
+              return {
+                id: `db-${e.id}`,
+                category: e.category || "Technical Events",
+                title: e.title,
+                image: e.cover_image?.public_url || e.cover_image?.image_url || e.banner_url || "/events/technicalevents/te1.jpeg",
+                images: e.gallery?.length
+                  ? e.gallery.map((image) => resolveMediaUrl(image.public_url || image.image_url))
+                  : [e.cover_image?.public_url || e.cover_image?.image_url || e.banner_url || "/events/technicalevents/te1.jpeg"],
+                date: d && !isNaN(d.getTime()) ? d.toISOString() : "2026",
+                displayDate: d && !isNaN(d.getTime())
+                  ? d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+                  : "2026",
+                  };
+            });
+
+          const dbTitles = new Set(dbItems.map((item) => item.title.toLowerCase().trim()));
+          const nonDupStatic = staticEvents.filter(
+            (item) => !dbTitles.has(item.title.toLowerCase().trim())
+          );
+
+          if (isMounted) {
+            setEventsList([...dbItems, ...nonDupStatic]);
+          }
+        }
+      } catch (err) {
+        console.warn("[Events] Could not fetch live events from API:", err);
+      }
+    }
+
+    loadEvents();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (typingFinished) return undefined;
@@ -196,7 +243,7 @@ export default function Events() {
     return () => window.clearTimeout(timer);
   }, [typedHeadline, typedTitle, typingFinished]);
 
-  const filteredEvents = events
+  const filteredEvents = eventsList
     .filter(
       (event) =>
         activeFilter === "All Events" || event.category === activeFilter,

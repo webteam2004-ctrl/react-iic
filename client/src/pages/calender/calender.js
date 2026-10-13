@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
 	Calendar as CalendarIcon,
 	Table,
@@ -10,18 +10,92 @@ import {
 	ArrowUpRight
 } from 'lucide-react';
 import styles from './Calender.module.css';
-import events from '../../eventsdata/events.json';
+import initialEvents from '../../eventsdata/events.json';
+import { api } from '../../services/api';
 
 function Calender() {
 	const [currentDate, setCurrentDate] = useState(new Date());
+	const [events, setEvents] = useState(initialEvents);
 	const [selectedDay, setSelectedDay] = useState(() => {
 		const now = new Date();
-		const thisMonthEvents = events.filter(e => e.month === now.getMonth() && e.year === now.getFullYear());
+		const thisMonthEvents = initialEvents.filter(e => e.month === now.getMonth() && e.year === now.getFullYear());
 		if (thisMonthEvents.length > 0) return thisMonthEvents[0].date;
 		return now.getDate();
 	});
 	const [showYearSelector, setShowYearSelector] = useState(false);
 	const [activeView, setActiveView] = useState('calendar'); // 'calendar' | 'table'
+
+	useEffect(() => {
+		let isMounted = true;
+		async function loadSchedule() {
+			try {
+				const res = await api.calendar.getSchedule();
+				if (res && res.success && Array.isArray(res.calendar) && res.calendar.length > 0) {
+					const formattedDbEvents = res.calendar.map((item) => {
+						const startDate = new Date(item.start_time);
+						const endDate = item.end_time ? new Date(item.end_time) : null;
+
+						let timeStr = '';
+						const formatTime = (d) =>
+							d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+						if (!isNaN(startDate.getTime())) {
+							if (endDate && !isNaN(endDate.getTime())) {
+								timeStr = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+							} else {
+								timeStr = formatTime(startDate);
+							}
+						}
+
+						return {
+							id: item.id,
+							title: item.title,
+							date: startDate.getDate(),
+							month: startDate.getMonth(),
+							year: startDate.getFullYear(),
+							category:
+								item.category ||
+								(item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Event'),
+							location: item.location || 'VVITU Campus',
+							time: timeStr || 'Scheduled',
+							description: item.description || '',
+							isDbEvent: true
+						};
+					});
+
+					// Merge with static seed events to preserve historical records, deduplicating by title
+					const dbTitles = new Set(formattedDbEvents.map((e) => e.title.toLowerCase().trim()));
+					const nonDuplicateStatic = initialEvents.filter(
+						(e) => !dbTitles.has(e.title.toLowerCase().trim())
+					);
+
+					if (isMounted) {
+						const merged = [...formattedDbEvents, ...nonDuplicateStatic];
+						setEvents(merged);
+
+						// If currently viewed month has events, ensure an event day is selected
+						const now = new Date();
+						const currentMonthEvents = merged.filter(
+							(e) => e.month === now.getMonth() && e.year === now.getFullYear()
+						);
+						if (currentMonthEvents.length > 0) {
+							setSelectedDay((prev) => {
+								const hasCurrentSelection = currentMonthEvents.some((e) => e.date === prev);
+								return hasCurrentSelection ? prev : currentMonthEvents[0].date;
+							});
+						}
+					}
+				}
+			} catch (err) {
+				console.warn('[Calendar] Could not fetch live schedule, falling back to static data:', err);
+			}
+		}
+
+		loadSchedule();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	const monthNames = [
 		'January',
@@ -130,7 +204,7 @@ function Calender() {
 		}
 
 		return sorted;
-	}, [month, year, today]);
+	}, [month, year, today, events]);
 
 	// Schedule table: most recent events on top, earlier at the end
 	const sortedAllEvents = useMemo(() => {
@@ -139,7 +213,7 @@ function Calender() {
 			const dateB = new Date(b.year, b.month, b.date);
 			return dateB - dateA;
 		});
-	}, []);
+	}, [events]);
 
 	// Jump from Table directly into the Calendar view
 	const jumpToEvent = (event) => {

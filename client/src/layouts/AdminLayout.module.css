@@ -1,0 +1,560 @@
+/* ==========================================================================
+   IIC ADMIN DASHBOARD LAYOUT STYLES
+   Modern Institutional Design System: White/Slate with Indigo/Navy Accents
+   ========================================================================== */
+
+.adminWrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #0f172a;
+}
+
+/* --------------------------------------------------------------------------
+   SIDEBAR
+   -------------------------------------------------------------------------- */
+.sidebar {
+    width: 260px;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02);
+}
+
+.sidebarCollapsed {
+    width: 76px;
+}
+
+.sidebarBrand {
+    height: 68px;
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.brandLink {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.brandLogo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(49, 46, 129, 0.2);
+}
+
+.brandMeta {
+    display: flex;
+    flex-direction: column;
+}
+
+.brandTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.brandSubtitle {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.collapseBtn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.collapseBtn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* Navigation items */
+.sidebarNav {
+    flex: 1;
+    padding: 1.25rem 0.75rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.navSection {
+    margin-bottom: 1.5rem;
+}
+
+.navSectionTitle {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    padding: 0 0.75rem 0.5rem;
+    white-space: nowrap;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 2px;
+    border-radius: 8px;
+    color: #475569;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.navItem:hover {
+    background: #f8fafc;
+    color: #312e81;
+}
+
+.navItemActive {
+    background: #eef2ff !important;
+    color: #312e81 !important;
+    font-weight: 600;
+}
+
+.navItemActive::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 3px;
+    background: #4338ca;
+    border-radius: 0 4px 4px 0;
+}
+
+.navIcon {
+    flex-shrink: 0;
+}
+
+.navBadge {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.navBadgeActive {
+    background: #c7d2fe;
+    color: #312e81;
+}
+
+/* Sidebar Footer Profile */
+.sidebarFooter {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid #f1f5f9;
+    background: #fafaf9;
+}
+
+.userCard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.userAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #3730a3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.userInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.userName {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-transform: capitalize;
+    text-overflow: ellipsis;
+}
+
+.userRoleBadge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.roleSuperAdmin {
+    background: #ede9fe;
+    color: #6b21a8;
+}
+
+.roleAnalyst {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.logoutBtn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.logoutBtn:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* --------------------------------------------------------------------------
+   MAIN CONTENT CONTAINER
+   -------------------------------------------------------------------------- */
+.mainLayout {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mainLayoutCollapsed {
+    margin-left: 76px;
+}
+
+/* --------------------------------------------------------------------------
+   TOP HEADER
+   -------------------------------------------------------------------------- */
+.header {
+    height: 68px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mobileMenuBtn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.breadcrumbSeparator {
+    color: #cbd5e1;
+}
+
+.breadcrumbCurrent {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.statusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #059669;
+    background: #ecfdf5;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    border: 1px solid #d1fae5;
+}
+
+.pulseDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.quickPublishBtn {
+    background: #312e81;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.quickPublishBtn:hover {
+    background: #1e1b4b;
+    box-shadow: 0 2px 6px rgba(49, 46, 129, 0.2);
+}
+
+.iconBtn {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.15s ease;
+}
+
+.iconBtn:hover {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.notificationBadge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ef4444;
+}
+
+/* User Dropdown */
+.profileTrigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+}
+
+.profileTrigger:hover {
+    background: #f1f5f9;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 64px;
+    right: 1.75rem;
+    width: 230px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    padding: 0.5rem;
+    z-index: 100;
+    animation: dropIn 0.15s ease-out;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownHeader {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 0.25rem;
+}
+
+.dropdownName {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.dropdownEmail {
+    font-size: 0.75rem;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.84rem;
+    color: #334155;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    transition: background 0.15s ease;
+}
+
+.dropdownItem:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.dropdownDanger {
+    color: #dc2626;
+}
+
+.dropdownDanger:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* --------------------------------------------------------------------------
+   PAGE CONTENT WRAPPER
+   -------------------------------------------------------------------------- */
+.pageContent {
+    flex: 1;
+    padding: 1.75rem;
+    min-height: calc(100vh - 68px);
+}
+
+/* --------------------------------------------------------------------------
+   MOBILE BACKDROP
+   -------------------------------------------------------------------------- */
+.backdrop {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 270px;
+    }
+
+    .sidebarOpen {
+        transform: translateX(0);
+    }
+
+    .mainLayout,
+    .mainLayoutCollapsed {
+        margin-left: 0;
+    }
+
+    .mobileMenuBtn {
+        display: flex;
+    }
+
+    .backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(2px);
+        z-index: 45;
+    }
+
+    .header {
+        padding: 0 1rem;
+    }
+
+    .pageContent {
+        padding: 1rem;
+    }
+}

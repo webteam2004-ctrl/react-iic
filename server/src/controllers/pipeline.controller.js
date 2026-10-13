@@ -1,10 +1,12 @@
 import { supabase } from "../config/supabase.js";
+import { identifyImage, removeImage, saveImage } from "../services/mediaStorage.service.js";
 
 /**
  * Unified Shared Form & Data Pipeline Controller.
  * Enables publishing an event, its calendar schedule, and associated gallery images in one consistent transaction.
  */
 export const publishUnifiedEvent = async (req, res) => {
+    const savedFiles = [];
     try {
         const {
             event_id,
@@ -70,7 +72,7 @@ export const publishUnifiedEvent = async (req, res) => {
             savedEvent = data;
         }
 
-        // Process media attachments to gallery
+        // Process uploaded media attachments to gallery.
         const imagesToAttach = [];
         if (Array.isArray(media_urls) && media_urls.length > 0) {
             imagesToAttach.push(...media_urls);
@@ -80,12 +82,32 @@ export const publishUnifiedEvent = async (req, res) => {
         }
 
         const createdGalleryRecords = [];
+        if (req.files?.length) {
+            let captions = [];
+            try {
+                captions = req.body.captions ? JSON.parse(req.body.captions) : [];
+            } catch {
+                throw new Error("Captions must be a JSON array");
+            }
+            for (const [index, file] of req.files.entries()) {
+                const signature = identifyImage(file.buffer);
+                if (!signature || signature.mime !== file.mimetype) {
+                    throw new Error(`Invalid image contents for ${file.originalname}`);
+                }
+                const stored = await saveImage(file.buffer, signature);
+                savedFiles.push(stored);
+                imagesToAttach.push({
+                    image_url: stored.relativePath,
+                    caption: String(captions[index] || savedEvent.title || "Event Media").trim()
+                });
+            }
+        }
 
         if (imagesToAttach.length > 0) {
-            const galleryInserts = imagesToAttach.map((url) => ({
+            const galleryInserts = imagesToAttach.map((media) => ({
                 event_id: savedEvent.id,
-                image_url: url,
-                caption: caption || savedEvent.title || "Event Media"
+                image_url: typeof media === "string" ? media : media.image_url,
+                caption: typeof media === "string" ? (caption || savedEvent.title || "Event Media") : media.caption
             }));
 
             const { data: galleryData, error: galleryError } = await supabase
@@ -94,7 +116,7 @@ export const publishUnifiedEvent = async (req, res) => {
                 .select();
 
             if (galleryError) {
-                console.warn("[Pipeline] Failed to attach some gallery images:", galleryError.message);
+                throw galleryError;
             } else if (galleryData) {
                 createdGalleryRecords.push(...galleryData);
             }
@@ -105,9 +127,13 @@ export const publishUnifiedEvent = async (req, res) => {
             message: "Event, calendar schedule, and gallery media synchronized successfully via pipeline",
             event: savedEvent,
             calendar_synced: savedEvent.calendar_sync,
-            gallery_attached: createdGalleryRecords
+            gallery_attached: createdGalleryRecords,
+            gallery_items_created: createdGalleryRecords.length
         });
     } catch (err) {
+        if (savedFiles?.length) {
+            await Promise.allSettled(savedFiles.map((file) => removeImage(file.filename)));
+        }
         console.error("[Pipeline] Publish error:", err);
         return res.status(500).json({
             success: false,

@@ -1,8 +1,11 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-// Lazy load page components
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+
+// Public Lazy Page Components
 const Home = React.lazy(() => import('./pages/home'));
 const Calender = React.lazy(() => import('./pages/calender/calender'));
 const Contact = React.lazy(() => import('./pages/contact/contact'));
@@ -17,58 +20,152 @@ const AdminChallenges = React.lazy(() =>
 );
 const PageNotFound = React.lazy(() => import('./pages/PageNotFound'));
 
+// Admin Dashboard Components
+const AdminLayout = React.lazy(() => import('./layouts/AdminLayout'));
+const AdminEvents = React.lazy(() => import('./pages/admin/AdminEvents'));
+const AdminCalendar = React.lazy(() => import('./pages/admin/AdminCalendar'));
+const AdminGallery = React.lazy(() => import('./pages/admin/AdminGallery'));
+const AdminPipeline = React.lazy(() => import('./pages/admin/AdminPipeline'));
+const AdminIdeaHub = React.lazy(() => import('./pages/admin/AdminIdeaHub'));
+const AdminTeams = React.lazy(() => import('./pages/admin/AdminTeams'));
+const AdminUsers = React.lazy(() => import('./pages/admin/AdminUsers'));
+const AdminAccessDenied = React.lazy(() => import('./pages/admin/AdminAccessDenied'));
+
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Suspense
-          fallback={
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                color: '#2E2A8F',
-                fontSize: '1.2rem',
-                fontWeight: 600
-              }}
-            >
-              Loading...
-            </div>
-          }
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/calender" element={<Calender />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/teams" element={<Teams />} />
-            <Route path="/ideahub" element={<IdeaHub />} />
-            <Route path="/ideabank" element={<IdeaHub />} />
-            <Route path="/idea" element={<IdeaHub />} />
-            <Route
-              path="/admin-portal-login"
-              element={<AdminLogin />}
-            />
+    <AuthProvider>
+      <Router>
+        <Layout>
+          <Suspense
+            fallback={
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100vh',
+                  color: '#312e81',
+                  fontSize: '1.2rem',
+                  fontWeight: 600,
+                  fontFamily: 'Inter, system-ui, sans-serif'
+                }}
+              >
+                Loading IIC Portal...
+              </div>
+            }
+          >
+            <Routes>
+              {/* Public Website Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/calender" element={<Calender />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/teams" element={<Teams />} />
+              <Route path="/ideahub" element={<IdeaHub />} />
+              <Route path="/ideabank" element={<IdeaHub />} />
+              <Route path="/idea" element={<IdeaHub />} />
+              <Route path="/about" element={<About />} />
 
-            {/* SIH Challenge Admin Review Portal */}
-            <Route
-              path="/admin-challenges"
-              element={
-                <ProtectedRoute>
-                  <AdminChallenges />
-                </ProtectedRoute>
-              }
-            />
+              {/* Authentication Routes */}
+              <Route path="/admin-portal-login" element={<AdminLogin />} />
+              <Route path="/admin/login" element={<Navigate to="/admin-portal-login" replace />} />
 
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
-        </Suspense>
-      </Layout>
-    </Router>
+              {/* Legacy SIH Challenge Admin Review Portal Route */}
+              <Route
+                path="/admin-challenges"
+                element={
+                  <ProtectedRoute>
+                    <AdminChallenges />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Modern IIC Admin Dashboard Routes (Protected with RBAC) */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminLayout />
+                  </AdminProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="events" replace />} />
+
+                <Route
+                  path="events"
+                  element={
+                    <AdminProtectedRoute requiredModule="events" requiredAction="read">
+                      <AdminEvents />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="calendar"
+                  element={
+                    <AdminProtectedRoute requiredModule="calendar" requiredAction="read">
+                      <AdminCalendar />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="gallery"
+                  element={
+                    <AdminProtectedRoute requiredModule="gallery" requiredAction="read">
+                      <AdminGallery />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="pipeline"
+                  element={
+                    <AdminProtectedRoute requiredModule="events" requiredAction="read">
+                      <AdminPipeline />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="ideahub"
+                  element={
+                    <AdminProtectedRoute requiredModule="idea_hub" requiredAction="read">
+                      <AdminIdeaHub />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="teams"
+                  element={
+                    <AdminProtectedRoute requiredModule="teams" requiredAction="read">
+                      <AdminTeams />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                {/* Super Admin Restricted User Management */}
+                <Route
+                  path="users"
+                  element={
+                    <AdminProtectedRoute requireSuperAdmin>
+                      <AdminUsers />
+                    </AdminProtectedRoute>
+                  }
+                />
+
+                <Route path="access-denied" element={<AdminAccessDenied />} />
+              </Route>
+
+              {/* Fallback 404 Route */}
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </Suspense>
+        </Layout>
+      </Router>
+    </AuthProvider>
   );
 }
 
