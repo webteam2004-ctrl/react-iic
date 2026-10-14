@@ -1,82 +1,318 @@
+
 import { supabase } from "../config/supabase.js";
+import {
+    identifyImage,
+    publicImageUrl,
+    removeImage,
+    saveImage
+} from "../services/mediaStorage.service.js";
+
+// Map existing frontend fields to the designed database columns.
+const buildTeamPayload = (body, imageUrl) => {
+    const name = String(body.name || body.full_name || "").trim();
+
+    // Backward-compatible mapping for the current form.
+    const panel = String(
+        body.panel || body.team || body.role || ""
+    ).trim();
+
+    const role = String(
+        body.position || body.member_role ||
+        (body.panel ? body.role : body.department) || ""
+    ).trim();
+
+    const payload = {
+        full_name: name,
+        panel,
+        role,
+        name,
+        department: body.department || null,
+        linkedin_url: body.linkedin_url || null,
+        github_url: body.github_url || null,
+        display_order: Number.parseInt(
+            body.display_order ?? body.order_index,
+            10
+        ) || 0,
+        order_index: Number.parseInt(
+            body.order_index ?? body.display_order,
+            10
+        ) || 0,
+        is_active: body.is_active ?? true
+    };
+
+    // Keep both existing image columns compatible.
+    const suppliedImage =
+        imageUrl !== undefined
+            ? imageUrl
+            : body.image_url ?? body.profile_image;
+
+    if (suppliedImage !== undefined) {
+        payload.profile_image = suppliedImage || null;
+        payload.image_url = suppliedImage || null;
+    }
+
+    return payload;
+};
+
+const saveUploadedTeamImage = async (file) => {
+    if (!file) return null;
+
+    const signature = identifyImage(file.buffer);
+
+    if (!signature || signature.mime !== file.mimetype) {
+        throw new Error(`Invalid image contents for ${file.originalname}`);
+    }
+
+    return await saveImage(file.buffer, signature);
+};
+
+const getPublicTeamMember = (req, member) => ({
+    ...member,
+    public_image_url: publicImageUrl(
+        req,
+        member.image_url || member.profile_image
+    )
+});
 
 export const createTeamMember = async (req, res) => {
+    let storedFile;
+
     try {
-        const { name, role, bio, initials, section, image } = req.body;
-        if (!name || !role || !bio || !initials || !section || !image) {
-            return res.status(400).json({ message: "All fields are required" })
+        const payload = buildTeamPayload(req.body);
+
+        if (!payload.full_name || !payload.panel || !payload.role) {
+            return res.status(400).json({
+                success: false,
+                message: "Name, panel, and role are required"
+            });
         }
+
+        storedFile = await saveUploadedTeamImage(req.file);
+
+        if (storedFile) {
+            payload.image_url = storedFile.relativePath;
+            payload.profile_image = storedFile.relativePath;
+        }
+
         const { data, error } = await supabase
-            .from('team_members')
-            .insert([{ name, role, bio, initials, section, image }])
-            .select();
+            .from("team_members")
+            .insert([payload])
+            .select()
+            .single();
 
         if (error) throw error;
-        return res.status(201).json({ message: "Team member created successfully", teamMember: data[0] });
+
+        return res.status(201).json({
+            success: true,
+            message: "Team member created successfully",
+            teamMember: getPublicTeamMember(req, data)
+        });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
+        if (storedFile) {
+            await removeImage(storedFile.filename).catch(() => {});
+        }
+
+        console.error("[Team] Create error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-}
+};
 
 export const getAllTeamMemeber = async (req, res) => {
     try {
-        const { data: teamMembers, error } = await supabase.from('team_members').select('*');
+        const { data, error } = await supabase
+            .from("team_members")
+            .select("*")
+            .order("display_order", { ascending: true });
+
         if (error) throw error;
-        return res.status(200).json({ message: "Team members fetched successfully", teamMembers });
+
+        const teamMembers = (data || []).map((member) =>
+            getPublicTeamMember(req, member)
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Team members fetched successfully",
+            teamMembers,
+            teams: teamMembers
+        });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
+        console.error("[Team] Get all error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-}
+};
 
 export const getTeamMemberById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { data: teamMember, error } = await supabase.from('team_members').select('*').eq('id', id).single();
-        if (error || !teamMember) {
-            return res.status(404).json({ message: "Team Member Not Found" });
-        }
-        return res.status(200).json({ message: "Team member fetched successfully", teamMember });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
-    }
-}
 
-export const updateTeamMember = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updates = req.body;
         const { data, error } = await supabase
-            .from('team_members')
-            .update(updates)
-            .eq('id', id)
-            .select();
+            .from("team_members")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
 
         if (error) throw error;
-        if (!data || data.length === 0) {
-            return res.status(404).json({ message: "Team Member Not Found" });
+
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                message: "Team Member Not Found"
+            });
         }
-        return res.status(200).json({ message: "Team member updated successfully", teamMember: data[0] });
+
+        return res.status(200).json({
+            success: true,
+            message: "Team member fetched successfully",
+            teamMember: getPublicTeamMember(req, data)
+        });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
+        console.error("[Team] Get by ID error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-}
+};
+
+export const updateTeamMember = async (req, res) => {
+    let storedFile;
+
+    try {
+        const { id } = req.params;
+
+        const { data: existing, error: existingError } = await supabase
+            .from("team_members")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
+
+        if (existingError) throw existingError;
+
+        if (!existing) {
+            return res.status(404).json({
+                success: false,
+                message: "Team Member Not Found"
+            });
+        }
+
+        storedFile = await saveUploadedTeamImage(req.file);
+
+        const updates = buildTeamPayload(
+            {
+                ...existing,
+                ...req.body,
+                // Preserve the existing panel/role mapping when fields
+                // are omitted from a partial update.
+                panel: req.body.panel ?? req.body.team ??
+                    (req.body.role === undefined ? existing.panel : undefined),
+                role: req.body.position ?? req.body.member_role ??
+                    (req.body.panel !== undefined
+                        ? req.body.role
+                        : req.body.department === undefined
+                            ? existing.role
+                            : undefined),
+                name: req.body.name ?? req.body.full_name ?? existing.full_name
+            }
+        );
+
+        if (storedFile) {
+            updates.image_url = storedFile.relativePath;
+            updates.profile_image = storedFile.relativePath;
+        } else {
+            // Do not erase an existing image during a text-only update.
+            delete updates.image_url;
+            delete updates.profile_image;
+        }
+
+        const { data, error } = await supabase
+            .from("team_members")
+            .update(updates)
+            .eq("id", id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // Remove the previous image only after the database update succeeds.
+        if (storedFile) {
+            const oldImage = existing.image_url || existing.profile_image;
+
+            if (oldImage?.startsWith("/media/")) {
+                await removeImage(oldImage.split("/").pop()).catch(() => {});
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Team member updated successfully",
+            teamMember: getPublicTeamMember(req, data)
+        });
+    } catch (error) {
+        if (storedFile) {
+            await removeImage(storedFile.filename).catch(() => {});
+        }
+
+        console.error("[Team] Update error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
 
 export const deleteTeamMember = async (req, res) => {
     try {
         const { id } = req.params;
-        const { error, count } = await supabase.from('team_members').delete({ count: 'exact' }).eq('id', id);
+
+        const { data: existing, error: fetchError } = await supabase
+            .from("team_members")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        if (!existing) {
+            return res.status(404).json({
+                success: false,
+                message: "Team Member Not Found"
+            });
+        }
+
+        const { error } = await supabase
+            .from("team_members")
+            .delete()
+            .eq("id", id);
 
         if (error) throw error;
-        if (count === 0) {
-            return res.status(404).json({ message: "Team Member Not Found" });
+
+        const oldImage = existing.image_url || existing.profile_image;
+
+        if (oldImage?.startsWith("/media/")) {
+            await removeImage(oldImage.split("/").pop()).catch(() => {});
         }
-        return res.status(200).json({ message: "Team member deleted successfully" });
+
+        return res.status(200).json({
+            success: true,
+            message: "Team member deleted successfully"
+        });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
+        console.error("[Team] Delete error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-}
+};

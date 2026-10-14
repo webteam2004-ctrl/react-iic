@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyAdmin } from "../middlewares/auth.middleware.js";
+import { requirePermission } from "../middlewares/rbac.middleware.js";
 import {
   submitChallenge,
   getAllChallenges,
@@ -8,42 +9,36 @@ import {
   verifyStudent
 } from "../controllers/challenge.controller.js";
 
-
-
 const router = Router();
 
-
 // ==========================================
-// STUDENT ROUTES
+// STUDENT / PUBLIC ROUTES
 // ==========================================
-
-// Verify SIH registration
 router.post("/verify", verifyStudent);
-
-// Submit challenge
 router.post("/submit", submitChallenge);
 
-
 // ==========================================
-// ADMIN ROUTES - PROTECTED
+// ADMIN / IDEA HUB ROUTES - RBAC PROTECTED
 // ==========================================
+router.get(
+  "/",
+  verifyAdmin,
+  requirePermission("idea_hub", "read"),
+  getAllChallenges
+);
 
-// Get all submitted challenges
-router.get("/", verifyAdmin, getAllChallenges);
-
-// Update web team review
 router.put(
   "/:id/web-review",
   verifyAdmin,
+  requirePermission("idea_hub", "update"),
   updateWebTeamReview
 );
 
-// Update faculty review
 router.put(
   "/:id/faculty-review",
   verifyAdmin,
+  requirePermission("idea_hub", "update"),
   updateFacultyReview
 );
-
 
 export default router;
