@@ -627,7 +627,7 @@
   height: 100%;
   min-height: 0;
   flex-direction: column;
-  padding: 0 0 18px;
+  padding: 0;
   overflow: visible;
   border: 0;
   border-radius: 0;
@@ -693,10 +693,11 @@
 .poster-frame {
   position: relative;
   height: 245px;
-  margin-left: 5px;
+  width: 100%;
+  margin-left: 0;
   overflow: hidden;
-  background: var(--accent-soft);
-  clip-path: polygon(12% 0, 100% 0, 86% 100%, 0 100%);
+  background: transparent;
+  clip-path: none;
 }
 
 .poster-frame::after {
@@ -709,7 +710,7 @@
   z-index: 2;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .poster-fallback {
@@ -755,8 +756,9 @@
   position: relative;
   z-index: 3;
   display: inline-flex;
+  align-self: center;
   align-items: center;
-  width: calc(100% - 33px);
+  width: 100%;
   min-height: 46px;
   gap: 11px;
   margin: -1px 0 0;
@@ -781,16 +783,11 @@
 }
 
 .event-card-content {
-  padding: 15px 12px 8px;
+  padding: 0;
 }
 
 .event-card-content h3 {
-  margin: 0 0 7px;
-  color: var(--navy);
-  font-size: 1.16rem;
-  font-weight: 900;
-  letter-spacing: -0.035em;
-  line-height: 1.12;
+  display: none;
 }
 
 .event-connector {
@@ -850,7 +847,7 @@
   top: 222px;
   right: -88px;
   width: 80px;
-  height: 560px;
+  height: 360px;
   overflow: visible;
   fill: none;
   stroke: #9ac7e9;
@@ -1187,7 +1184,7 @@
   .poster-frame {
     height: 220px;
     clip-path: none;
-    border-radius: 14px;
+    border-radius: 0;
     margin-left: 0;
   }
 
@@ -1291,4 +1288,65 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Keep poster and original date ribbon aligned without a colored poster backing. */
+.poster-frame:has(img:not([style*="display: none"])) .poster-fallback {
+  display: none;
+}
+
+/* ===========================================================
+   POSTER-WIDTH DATE RIBBONS (override existing rules)
+   =========================================================== */
+.poster-group {
+  --poster-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.poster-group .poster-frame {
+  position: relative;
+  width: 100%;
+  height: 245px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  overflow: hidden;
+}
+
+.poster-group .poster-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.poster-group .date-ribbon {
+  width: var(--poster-width);
+  max-width: 100%;
+  align-self: center;
+  flex-shrink: 0;
+  margin: 0;
+  /* Original ribbon background, colors, slant, icon and text are inherited. */
+}
+
+.poster-group .poster-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+@media (max-width: 760px) {
+  .poster-group .poster-frame { height: 220px; }
+}
+
+@media (max-width: 580px) {
+  .poster-group .poster-frame { height: 270px; }
 }

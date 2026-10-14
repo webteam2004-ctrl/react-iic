@@ -1,12 +1,11 @@
-// ============================================================================
-// ACTIVE IMPLEMENTATION (Integrated from Desktop)
-// ============================================================================
 import { useEffect, useState } from "react";
 import styles from "./Events.module.css";
 
 const classNames = (...names) =>
-  names.filter(Boolean).map((name) => styles[name]).join(" ");
-
+  names
+    .filter(Boolean)
+    .map((name) => styles[name])
+    .join(" ");
 
 const categories = [
   "All Events",
@@ -69,6 +68,7 @@ const events = [
     category: "Technical Events",
     title: "Innovation Intramurals",
     image: "/events/technicalevents/te3.jpeg",
+    date: "2022",
     displayDate: "2022",
   },
   {
@@ -76,6 +76,7 @@ const events = [
     category: "Technical Events",
     title: "Mind Mashrims",
     image: "/events/technicalevents/te4.jpeg",
+    date: "2022",
     displayDate: "2022",
   },
   {
@@ -83,6 +84,7 @@ const events = [
     category: "Technical Events",
     title: "Stock Wars",
     image: "/events/technicalevents/te5.jpeg",
+    date: "2022",
     displayDate: "2022",
   },
   {
@@ -90,6 +92,7 @@ const events = [
     category: "Technical Events",
     title: "Innovation Hunt",
     image: "/events/technicalevents/te6.jpeg",
+    date: "2022",
     displayDate: "2022",
   },
   {
@@ -97,6 +100,7 @@ const events = [
     category: "Technical Events",
     title: "Recall Masters",
     image: "/events/technicalevents/te7.jpeg",
+    date: "2023",
     displayDate: "2023",
   },
   {
@@ -104,6 +108,7 @@ const events = [
     category: "Technical Events",
     title: "Memory Wizards",
     image: "/events/technicalevents/te8.jpeg",
+    date: "2023",
     displayDate: "2023",
   },
   {
@@ -111,6 +116,7 @@ const events = [
     category: "Technical Events",
     title: "Techmania",
     image: "/events/technicalevents/te9.jpeg",
+    date: "2023",
     displayDate: "2023",
   },
 ];
@@ -123,6 +129,27 @@ const getEventTimestamp = ({ date, displayDate }) => {
   return Number.isNaN(timestamp) ? null : timestamp;
 };
 
+const syncPosterRibbonWidth = (posterFrame) => {
+  const image = posterFrame.querySelector("img");
+  const ribbon = posterFrame.nextElementSibling;
+
+  if (!(ribbon instanceof HTMLElement)) return;
+
+  if (!image || image.style.display === "none" || !image.naturalWidth) {
+    ribbon.style.width = "calc(100% + 80px)";
+    return;
+  }
+
+  const { width, height } = posterFrame.getBoundingClientRect();
+
+  const imageWidth = Math.min(
+    width,
+    height * (image.naturalWidth / image.naturalHeight),
+  );
+
+  ribbon.style.width = `${imageWidth + 80}px`;
+};
+
 function CalendarIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -131,20 +158,30 @@ function CalendarIcon() {
   );
 }
 
-function RowTurnArrow({ reverse, colorIndex }) {
+function RowTurnArrow({ reverse, colorIndex, height = 560 }) {
   return (
     <svg
-      className={classNames("row-turn", `turn-${colorIndex}`, reverse && "reverse")}
+      className={classNames(
+        "row-turn",
+        `turn-${colorIndex}`,
+        reverse && "reverse",
+      )}
+      style={{ height: `${height}px` }}
       viewBox="0 0 140 580"
       aria-hidden="true"
       preserveAspectRatio="none"
     >
-      <g transform={reverse ? "translate(140 0) scale(-1 1)" : undefined}>
+      <g
+        transform={
+          reverse ? "translate(140 0) scale(-1 1)" : undefined
+        }
+      >
         <path
           className={styles["turn-path"]}
           pathLength="1"
           d="M4 8h63c33 0 53 17 53 49v454c0 32-20 49-53 49H14"
         />
+
         <path
           className={styles["turn-tip"]}
           pathLength="1"
@@ -158,12 +195,17 @@ function RowTurnArrow({ reverse, colorIndex }) {
 function EventConnector({ reverse }) {
   return (
     <svg viewBox="0 0 112 150" aria-hidden="true">
-      <g transform={reverse ? "translate(112 0) scale(-1 1)" : undefined}>
+      <g
+        transform={
+          reverse ? "translate(112 0) scale(-1 1)" : undefined
+        }
+      >
         <path
           className={styles["connector-path"]}
           pathLength="1"
           d="M3 131h31c14 0 22-7 26-20l17-66c3-12 10-18 22-18h8"
         />
+
         <path
           className={styles["connector-tip"]}
           pathLength="1"
@@ -175,15 +217,16 @@ function EventConnector({ reverse }) {
 }
 
 export default function Events() {
-  const [activeFilter, setActiveFilter] =
-    useState("All Events");
+  const [activeFilter, setActiveFilter] = useState("All Events");
   const [typedTitle, setTypedTitle] = useState("");
   const [typingFinished, setTypingFinished] = useState(false);
+
   const typedHeadline = "Dream it. Challenge it. Make it happen.";
   const breakIndex = "Dream it. Challenge it.".length;
 
   useEffect(() => {
     if (typingFinished) return undefined;
+
     if (typedTitle.length >= typedHeadline.length) {
       setTypingFinished(true);
       return undefined;
@@ -199,17 +242,26 @@ export default function Events() {
   const filteredEvents = events
     .filter(
       (event) =>
-        activeFilter === "All Events" || event.category === activeFilter,
+        activeFilter === "All Events" ||
+        event.category === activeFilter,
     )
     .sort((a, b) => {
       const timestampA = getEventTimestamp(a);
       const timestampB = getEventTimestamp(b);
-      if (timestampA === null) return timestampB === null ? 0 : 1;
+
+      if (timestampA === null) {
+        return timestampB === null ? 0 : 1;
+      }
+
       if (timestampB === null) return -1;
+
       return timestampB - timestampA;
     });
+
   const timelineRows = Array.from(
-    { length: Math.ceil(filteredEvents.length / eventsPerRow) },
+    {
+      length: Math.ceil(filteredEvents.length / eventsPerRow),
+    },
     (_, index) =>
       filteredEvents.slice(
         index * eventsPerRow,
@@ -219,67 +271,86 @@ export default function Events() {
 
   useEffect(() => {
     const rows = document.querySelectorAll("[data-timeline-row]");
+
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (reduceMotion) {
-      rows.forEach((row) => row.classList.add(styles["is-visible"]));
-      return;
+      rows.forEach((row) => {
+        row.classList.add(styles["is-visible"]);
+      });
+
+      return undefined;
     }
 
-    rows.forEach((row) => row.classList.add(styles["motion-ready"]));
-    // Commit the hidden starting state before observing visible rows.
+    rows.forEach((row) => {
+      row.classList.add(styles["motion-ready"]);
+    });
+
     void rows[0]?.offsetWidth;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
+
           entry.target.classList.add(styles["is-visible"]);
           observer.unobserve(entry.target);
         });
       },
-      { threshold: 0.2, rootMargin: "0px 0px -28% 0px" },
+      {
+        threshold: 0.2,
+        rootMargin: "0px 0px -28% 0px",
+      },
     );
 
     rows.forEach((row) => observer.observe(row));
+
     return () => observer.disconnect();
   }, [activeFilter]);
 
   useEffect(() => {
-    const featuredCard = document.querySelector(
-      "[data-featured-card]",
+    const posterFrames = document.querySelectorAll(
+      `.${styles["poster-frame"]}`,
     );
-    if (!featuredCard) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      featuredCard.classList.add(styles["is-visible"]);
-      return;
-    }
+    const observers = [];
 
-    featuredCard.classList.add(styles["motion-ready"]);
-    // Commit the translated starting state before triggering the reveal.
-    void featuredCard.offsetWidth;
+    posterFrames.forEach((posterFrame) => {
+      const image = posterFrame.querySelector("img");
+      const syncWidth = () => syncPosterRibbonWidth(posterFrame);
+      const observer = new ResizeObserver(syncWidth);
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        featuredCard.classList.add(styles["is-visible"]);
+      observer.observe(posterFrame);
+      image?.addEventListener("load", syncWidth);
+      image?.addEventListener("error", syncWidth);
+
+      syncWidth();
+
+      observers.push({
+        observer,
+        image,
+        syncWidth,
+      });
+    });
+
+    return () => {
+      observers.forEach(({ observer, image, syncWidth }) => {
         observer.disconnect();
-      },
-      { threshold: 0.2, rootMargin: "0px 0px -8% 0px" },
-    );
-
-    observer.observe(featuredCard);
-    return () => observer.disconnect();
-  }, []);
+        image?.removeEventListener("load", syncWidth);
+        image?.removeEventListener("error", syncWidth);
+      });
+    };
+  }, [activeFilter]);
 
   return (
     <main className={styles["events-page"]}>
       <header className={styles["events-hero"]}>
         <div className={styles["hero-top"]}>
-          <p className={styles["eyebrow"]}>IIC VVITU · THINK BEYOND LIMITS</p>
+          <p className={styles["eyebrow"]}>
+            IIC VVITU · THINK BEYOND LIMITS
+          </p>
         </div>
 
         <div className={styles["hero-layout"]}>
@@ -289,60 +360,114 @@ export default function Events() {
                 ? typedTitle
                 : typedTitle.slice(0, breakIndex)}
             </span>
+
             {typedTitle.length > breakIndex && (
               <>
                 <br />
-                <span>{typedTitle.slice(breakIndex).trimStart()}</span>
+
+                <span>
+                  {typedTitle.slice(breakIndex).trimStart()}
+                </span>
               </>
             )}
+
             {!typingFinished && (
-              <span className={styles["heading-cursor"]} aria-hidden="true" />
+              <span
+                className={styles["heading-cursor"]}
+                aria-hidden="true"
+              />
             )}
           </h1>
 
           <p className={styles["hero-copy"]}>
-            From exciting competitions to hands-on workshops, discover opportunities that transform {" "}
+            From exciting competitions to hands-on workshops,
+            discover opportunities that transform{" "}
             <br className={styles["hero-copy-break"]} />
             curiosity into confidence and ideas into impact.
           </p>
         </div>
       </header>
 
-      <section className={styles["past-section"]} aria-labelledby="past-title">
+      <section
+        className={styles["past-section"]}
+        aria-labelledby="past-title"
+      >
         <div className={styles["section-heading"]}>
           <div>
-            <p className={styles["section-kicker"]}>Our journey</p>
+            <p className={styles["section-kicker"]}>
+              Our journey
+            </p>
+
             <h2 id="past-title">Past events</h2>
           </div>
+
           <span className={styles["heading-rule"]} />
         </div>
 
-        <div className={styles["filters"]} aria-label="Filter events">
+        <div
+          className={styles["filters"]}
+          aria-label="Filter events"
+        >
           {categories.map((category) => (
             <button
               key={category}
-              className={classNames("filter", activeFilter === category && "active")}
+              className={classNames(
+                "filter",
+                activeFilter === category && "active",
+              )}
               type="button"
               aria-pressed={activeFilter === category}
               onClick={() => setActiveFilter(category)}
               onPointerMove={(event) => {
-                const bounds = event.currentTarget.getBoundingClientRect();
-                const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-                const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-                event.currentTarget.style.setProperty("--move-x", `${x * 5}px`);
-                event.currentTarget.style.setProperty("--move-y", `${y * 4}px`);
+                const bounds =
+                  event.currentTarget.getBoundingClientRect();
+
+                const x =
+                  (event.clientX - bounds.left) / bounds.width -
+                  0.5;
+
+                const y =
+                  (event.clientY - bounds.top) / bounds.height -
+                  0.5;
+
+                event.currentTarget.style.setProperty(
+                  "--move-x",
+                  `${x * 5}px`,
+                );
+
+                event.currentTarget.style.setProperty(
+                  "--move-y",
+                  `${y * 4}px`,
+                );
+
                 event.currentTarget.style.setProperty(
                   "--tilt",
                   `${x * 2.5}deg`,
                 );
+
                 event.currentTarget.style.backgroundColor =
-                  x < -0.12 ? "#fff1f4" : x > 0.12 ? "#edf7ff" : "#fff9e9";
+                  x < -0.12
+                    ? "#fff1f4"
+                    : x > 0.12
+                      ? "#edf7ff"
+                      : "#fff9e9";
               }}
               onPointerLeave={(event) => {
-                event.currentTarget.style.removeProperty("--move-x");
-                event.currentTarget.style.removeProperty("--move-y");
-                event.currentTarget.style.removeProperty("--tilt");
-                event.currentTarget.style.removeProperty("background-color");
+                event.currentTarget.style.removeProperty(
+                  "--move-x",
+                );
+
+                event.currentTarget.style.removeProperty(
+                  "--move-y",
+                );
+
+                event.currentTarget.style.removeProperty(
+                  "--tilt",
+                );
+
+                event.currentTarget.style.removeProperty(
+                  "background-color",
+                );
               }}
             >
               {category}
@@ -356,58 +481,89 @@ export default function Events() {
 
             return (
               <div
-                className={classNames("timeline-row", isReverse && "reverse")}
+                className={classNames(
+                  "timeline-row",
+                  isReverse && "reverse",
+                )}
                 key={`${activeFilter}-row-${rowIndex}`}
                 data-timeline-row
               >
                 {row.map((event, eventIndex) => {
-                  const index = rowIndex * eventsPerRow + eventIndex;
-                  const accent = accentNames[index % accentNames.length];
+                  const index =
+                    rowIndex * eventsPerRow + eventIndex;
+
+                  const accent =
+                    accentNames[index % accentNames.length];
 
                   return (
                     <div
                       className={classNames(
                         "timeline-step",
-                        index === filteredEvents.length - 1 && "final-step",
+                        index === filteredEvents.length - 1 &&
+                          "final-step",
                       )}
                       key={event.id}
                     >
-                      <article className={classNames("event-card", accent)}>
-                        <span className={styles["card-trace"]} aria-hidden="true" />
-                        <span className={styles["event-number"]}>
+                      <article
+                        className={classNames(
+                          "event-card",
+                          accent,
+                        )}
+                      >
+                        <span
+                          className={styles["card-trace"]}
+                          aria-hidden="true"
+                        />
+
+                        <span
+                          className={styles["event-number"]}
+                        >
                           {String(index + 1).padStart(2, "0")}
                         </span>
-                        <div className={styles["poster-frame"]}>
-                          <div className={styles["poster-fallback"]}>
+
+                        <div
+                          className={styles["poster-frame"]}
+                        >
+                          <div
+                            className={
+                              styles["poster-fallback"]
+                            }
+                          >
                             <span>{event.category}</span>
                             <strong>{event.title}</strong>
                           </div>
+
                           <img
                             src={event.image}
-                            alt=""
+                            alt={event.title}
                             loading="lazy"
                             onError={(error) => {
-                              error.currentTarget.style.display = "none";
+                              error.currentTarget.style.display =
+                                "none";
                             }}
                           />
                         </div>
 
-                        <div className={styles["date-ribbon"]}>
+                        <div
+                          className={styles["date-ribbon"]}
+                        >
                           <CalendarIcon />
                           <span>{event.displayDate}</span>
                         </div>
 
-                        <div className={styles["event-card-content"]}>
-                          <h3>{event.title}</h3>
-                        </div>
                       </article>
 
                       {eventIndex < row.length - 1 && (
                         <span
-                          className={classNames("event-connector", `connector-${index % 3}`)}
+                          className={classNames(
+                            "event-connector",
+                            `connector-${index % 3}`,
+                          )}
                           aria-hidden="true"
                         >
-                          <EventConnector reverse={isReverse} />
+                          <EventConnector
+                            reverse={isReverse}
+                          />
                         </span>
                       )}
                     </div>
@@ -418,6 +574,7 @@ export default function Events() {
                   <RowTurnArrow
                     reverse={isReverse}
                     colorIndex={rowIndex % 3}
+                    height={Math.max(280, 170 + row.length * 65)}
                   />
                 )}
               </div>
@@ -425,7 +582,6 @@ export default function Events() {
           })}
         </div>
       </section>
-
     </main>
   );
 }

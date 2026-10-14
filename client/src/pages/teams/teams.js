@@ -3,6 +3,7 @@ import styles from "./Teams.module.css";
 
 const TEAM_QUOTE =
 	"“Your curiosity can start an idea. Our teamwork can turn it into a breakthrough.”";
+const TEAM_QUOTE_BREAK = TEAM_QUOTE.indexOf("Our teamwork");
 
 const teamData = {
 	team: [
@@ -77,7 +78,7 @@ const teamData = {
 				"The web development team builds and maintains IIC's digital infrastructure. They create user-friendly websites, design interfaces, implement features, ensure responsive design, and provide technical solutions that enhance online user experience and accessibility.",
 			reverse: false,
 			members: [
-				{ name: "Leela Chaitanya", role: "Web Head", initials: "LC", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/WA_1786806535851%20-%20Leela%20Chaitanya.jpg", github: "https://github.com/chaitu64", linkedin: "https://www.linkedin.com/in/chunduri-leela-chaitanya-081537217/" },
+				{ name: "Leela Chaitanya", role: "Web Head", initials: "LC", image: "/teams/web/chaitu.png", github: "https://github.com/chaitu64", linkedin: "https://www.linkedin.com/in/chunduri-leela-chaitanya-081537217/" },
 				{ name: "Harsha Vardhan J", role: "Web Member", initials: "HJ", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/file_00000000166c8211aa55d23f66eef0da%20-%20Harsha%20vardhan%20J.png" },
 				{ name: "Harini Sai", role: "Web Member", initials: "LC", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/Screenshot%202026-08-18%20004950.png", imgStyle: { transform: "scale(1.4)", objectPosition: "center 20%" }, github: "https://github.com/HARINISAI-18", linkedin: "https://www.linkedin.com/in/harini-sai18/" },
 				{ name: "Rishitha", role: "Web Member", initials: "K", image: "https://pgoezyvozcnkfiwrknmx.supabase.co/storage/v1/object/public/Web/IMG_20260815_154627%20-%20KRishitha.jpg", github: "https://github.com/Rishitha0007", linkedin: "https://www.linkedin.com/in/rishitha-kattamuri-/" },
@@ -226,7 +227,7 @@ function GitHubIcon() {
 	);
 }
 
-function MemberCard({ member, index, department, year }) {
+function MemberCard({ member, index, department, edition }) {
 	const linkedinUrl =
 		member.linkedin ||
 		`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(member.name)}`;
@@ -234,14 +235,13 @@ function MemberCard({ member, index, department, year }) {
 		member.github ||
 		`https://github.com/search?q=${encodeURIComponent(member.name)}&type=users`;
 	const isWebDevelopmentMember = department === "Web Development";
-	const isCoordinator = department === "IIC Co-ordinators";
-	const isArchiveMember = year === "2025";
+	const memberRole =
+		member.role || `${department.replace(" Department", "")} Member`;
+	const isIicSeven = edition === "7.0";
 
 	return (
 		<article
-			className={`${styles.memberCard} ${isArchiveMember ? styles.archiveCard : ""} ${
-				isCoordinator ? styles.coordinatorCard : ""
-			}`}
+			className={styles.memberCard}
 			style={{ "--card-delay": `${Math.min(index, 7) * 70}ms` }}
 		>
 			<figure className={styles.memberFigure}>
@@ -267,55 +267,54 @@ function MemberCard({ member, index, department, year }) {
 			</figure>
 			<div className={styles.memberBody}>
 				<div className={styles.memberHeader}>
+					{isIicSeven && <p className={styles.editionLabel}>IIC · 2025</p>}
 					<h3 className={styles.memberName}>{member.name}</h3>
-					{!isArchiveMember && (
-						<p className={styles.memberDepartment}>{member.role}</p>
-					)}
+					{!isIicSeven && <p className={styles.memberDepartment}>{memberRole}</p>}
 				</div>
-				{!isArchiveMember && (
-					<div className={styles.memberMeta}>
-						{!isCoordinator && (
-							<>
-								<div>
-									<span>Year</span>
-									<strong>{member.year || "—"}</strong>
-								</div>
-								<div>
-									<span>Branch</span>
-									<strong>{member.branch || "—"}</strong>
-								</div>
-							</>
-						)}
+				{!isIicSeven && <div className={styles.memberMeta}>
+					<a
+						className={styles.socialLink}
+						href={linkedinUrl}
+						target="_blank"
+						rel="noreferrer"
+						aria-label={`Find ${member.name} on LinkedIn`}
+					>
+						<LinkedInIcon />
+					</a>
+					{isWebDevelopmentMember && (
 						<a
 							className={styles.socialLink}
-							href={linkedinUrl}
+							href={githubUrl}
 							target="_blank"
 							rel="noreferrer"
-							aria-label={`Find ${member.name} on LinkedIn`}
+							aria-label={`Find ${member.name} on GitHub`}
 						>
-							<LinkedInIcon />
+							<GitHubIcon />
 						</a>
-						{isWebDevelopmentMember && (
-							<a
-								className={styles.socialLink}
-								href={githubUrl}
-								target="_blank"
-								rel="noreferrer"
-								aria-label={`Find ${member.name} on GitHub`}
-							>
-								<GitHubIcon />
-							</a>
-						)}
-					</div>
-				)}
+					)}
+				</div>}
+				{isIicSeven && <span className={styles.editionWatermark} aria-hidden="true">25</span>}
 			</div>
 		</article>
 	);
 }
 
-function TeamSection({ section, index, year }) {
+function TeamSection({ section, index, edition }) {
 	const sectionRef = React.useRef(null);
 	const railRef = React.useRef(null);
+	const isIicSeven = edition === "7.0";
+	const isSmallIicSevenTeam = isIicSeven && section.members.length <= 4;
+	const isMobileOnlyIicEightTeam =
+		edition === "8.0" &&
+		["IIC Co-ordinators", "IIC Presidents"].includes(section.section);
+	const isIicCoordinatorSection =
+		edition === "8.0" && section.section === "IIC Co-ordinators";
+	const isIicPresidentSection =
+		edition === "8.0" && section.section === "IIC Presidents";
+	const hasMobileOnlyControls =
+		isSmallIicSevenTeam || isMobileOnlyIicEightTeam;
+	const hasArrows =
+		isIicSeven || section.members.length > 3 || isMobileOnlyIicEightTeam;
 
 	React.useEffect(() => {
 		const element = sectionRef.current;
@@ -344,6 +343,17 @@ function TeamSection({ section, index, year }) {
 			className={`${styles.teamSection} ${section.reverse ? styles.reverse : ""}`}
 			aria-labelledby={`team-${index}`}
 		>
+			<div
+				className={[
+					styles.sectionArtwork,
+					isIicSeven ? styles.iicSevenArtwork : "",
+					isIicCoordinatorSection ? styles.coordinatorArtwork : "",
+					isIicPresidentSection ? styles.presidentArtwork : "",
+				].filter(Boolean).join(" ")}
+				aria-hidden="true"
+			>
+				<span className={styles.sectionDotField} />
+			</div>
 			<div className={styles.sectionHeading}>
 				<div className={styles.sectionNumber}>{String(index + 1).padStart(2, "0")}</div>
 				<div className={styles.sectionText}>
@@ -353,16 +363,18 @@ function TeamSection({ section, index, year }) {
 				</div>
 			</div>
 
-			<div className={`${styles.railShell} ${section.members.length > 3 ? styles.withArrows : ""}`}>
-				<button
-					className={`${styles.railButton} ${styles.previous}`}
-					onClick={() => scroll(-1)}
-					aria-label={`View previous ${section.section} members`}
-				>
-					<span aria-hidden="true">‹</span>
-				</button>
+			<div className={styles.railShell}>
+				{hasArrows && (
+					<button
+						className={`${styles.railButton} ${styles.previous} ${hasMobileOnlyControls ? styles.mobileOnly : ""}`}
+						onClick={() => scroll(-1)}
+						aria-label={`View previous ${section.section} members`}
+					>
+						<span aria-hidden="true">‹</span>
+					</button>
+				)}
 				<div
-					className={`${styles.memberRail} ${section.members.length <= 3 ? styles.centered : ""}`}
+					className={`${styles.memberRail} ${(!hasArrows || hasMobileOnlyControls) ? styles.centered : ""}`}
 					ref={railRef}
 				>
 					{section.members.map((member, memberIndex) => (
@@ -371,19 +383,25 @@ function TeamSection({ section, index, year }) {
 							member={member}
 							index={memberIndex}
 							department={section.section}
-							year={year}
+							edition={edition}
 						/>
 					))}
 				</div>
-				<button
-					className={`${styles.railButton} ${styles.next}`}
-					onClick={() => scroll(1)}
-					aria-label={`View more ${section.section} members`}
-				>
-					<span aria-hidden="true">›</span>
-				</button>
+				{hasArrows && (
+					<button
+						className={`${styles.railButton} ${styles.next} ${hasMobileOnlyControls ? styles.mobileOnly : ""}`}
+						onClick={() => scroll(1)}
+						aria-label={`View more ${section.section} members`}
+					>
+						<span aria-hidden="true">›</span>
+					</button>
+				)}
 			</div>
-			<p className={styles.scrollHint}>Scroll or use the arrows to meet the team</p>
+			{hasArrows && (
+				<p className={`${styles.scrollHint} ${hasMobileOnlyControls ? styles.mobileOnly : ""}`}>
+					Scroll or use the arrows to meet the team
+				</p>
+			)}
 		</section>
 	);
 }
@@ -405,7 +423,7 @@ function YearFilter({ selectedYear, onChange }) {
 				aria-expanded={isOpen}
 				onClick={() => setIsOpen((open) => !open)}
 			>
-				<span>Year</span>
+				<span>IIC</span>
 				<strong>{selectedYear}</strong>
 				<i aria-hidden="true">
 					<svg viewBox="0 0 20 20">
@@ -414,8 +432,8 @@ function YearFilter({ selectedYear, onChange }) {
 				</i>
 			</button>
 			{isOpen && (
-				<div className={styles.yearMenu} role="listbox" aria-label="Select team year">
-					{["2026", "2025"].map((year) => (
+				<div className={styles.yearMenu} role="listbox" aria-label="Select IIC edition">
+					{["8.0", "7.0"].map((year) => (
 						<button
 							type="button"
 							key={year}
@@ -435,9 +453,11 @@ function YearFilter({ selectedYear, onChange }) {
 }
 
 export default function Teams() {
-	const [selectedYear, setSelectedYear] = React.useState("2026");
+	const [selectedYear, setSelectedYear] = React.useState("8.0");
 	const [typedQuote, setTypedQuote] = React.useState("");
 	const [typingFinished, setTypingFinished] = React.useState(false);
+	const directoryRef = React.useRef(null);
+	const hasAutoScrolled = React.useRef(false);
 
 	React.useEffect(() => {
 		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -459,28 +479,76 @@ export default function Teams() {
 		return () => window.clearTimeout(timer);
 	}, [typedQuote, typingFinished]);
 
+	React.useEffect(() => {
+		if (!typingFinished || hasAutoScrolled.current) return undefined;
+
+		const timer = window.setTimeout(() => {
+			const directory = directoryRef.current;
+			if (!directory || hasAutoScrolled.current) return;
+
+			const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			hasAutoScrolled.current = true;
+			directory.scrollIntoView({
+				behavior: reducedMotion ? "auto" : "smooth",
+				block: "start",
+			});
+		}, 450);
+
+		return () => window.clearTimeout(timer);
+	}, [typingFinished]);
+
 	return (
 		<div className={styles.wrap}>
 			<main className={styles.main}>
-				<div className={styles.intro}>
-					<p>Our Teams</p>
-					<h2 aria-label={TEAM_QUOTE}>
-						{typedQuote}
-						{!typingFinished && (
-							<span className={styles.quoteCursor} aria-hidden="true" />
-						)}
-					</h2>
-				</div>
+				<section className={styles.introStage} aria-label="Team introduction">
+					<div className={styles.introArtwork} aria-hidden="true">
+						<span className={styles.orbitOne} />
+						<span className={styles.orbitTwo} />
+						<span className={`${styles.heroSpark} ${styles.sparkOne}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkTwo}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkThree}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkFour}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkFive}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkSix}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkSeven}`} />
+						<span className={`${styles.heroSpark} ${styles.sparkEight}`} />
+					</div>
+					<div className={styles.intro}>
+						<p>Our Teams</p>
+						<h2 aria-label={TEAM_QUOTE}>
+							<span className={styles.quoteLine}>
+								{typedQuote.slice(0, TEAM_QUOTE_BREAK)}
+								{typedQuote.length < TEAM_QUOTE_BREAK && !typingFinished && (
+									<span className={styles.quoteCursor} aria-hidden="true" />
+								)}
+							</span>
+							{typedQuote.length >= TEAM_QUOTE_BREAK && (
+								<span className={styles.quoteLine}>
+									{typedQuote.slice(TEAM_QUOTE_BREAK)}
+									{!typingFinished && (
+										<span className={styles.quoteCursor} aria-hidden="true" />
+									)}
+								</span>
+							)}
+						</h2>
+					</div>
+					<p className={styles.introCaption}>Curiosity <span /> Collaboration <span /> Change</p>
+					<div className={styles.heroBridge}>
+						<span className={`${styles.bridgeNode} ${styles.bridgeNodeOne}`} aria-hidden="true" />
+						<span className={`${styles.bridgeNode} ${styles.bridgeNodeTwo}`} aria-hidden="true" />
+						<span className={`${styles.bridgeNode} ${styles.bridgeNodeThree}`} aria-hidden="true" />
+					</div>
+				</section>
 
-				<div className={styles.teamDirectory}>
+				<div ref={directoryRef} className={styles.teamDirectory}>
 					<YearFilter selectedYear={selectedYear} onChange={setSelectedYear} />
-					{selectedYear === "2026" ? (
+					{selectedYear === "8.0" ? (
 						teamData.team.map((section, index) => (
 							<TeamSection
 								key={section.section}
 								section={section}
 								index={index}
-								year="2026"
+								edition="8.0"
 							/>
 						))
 					) : (
@@ -489,7 +557,7 @@ export default function Teams() {
 								key={section.section}
 								section={section}
 								index={index}
-								year="2025"
+								edition="7.0"
 							/>
 						))
 					)}
