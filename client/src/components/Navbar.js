@@ -8,22 +8,32 @@ function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
     const currentPath = location.pathname;
+    const isTeamsPage = currentPath === '/teams' || currentPath.startsWith('/teams/');
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 20) {
-                setScrolled(true);
-            } else {
-                setScrolled(false);
-            }
+        setScrolled(window.scrollY > 20);
+    };
+
+        handleScroll();
+
+        window.addEventListener('scroll', handleScroll, {
+        passive: true,
+    });
+
+    return () => {
+        window.removeEventListener('scroll', handleScroll);
         };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
 
     return (
-        <header className={scrolled ? 'scrolled' : ''}>
+        <header
+            className={[
+                scrolled ? 'scrolled' : '',
+                isTeamsPage ? 'teams-page-navbar' : '',
+            ].filter(Boolean).join(' ')}
+        >
             <div className="header-inner">
                 <Link to="/" className="brand" aria-label="VVITU IIC Home">
                     <img src="/images/IIC.png" alt="IIC Logo" />

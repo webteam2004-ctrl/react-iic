@@ -4,6 +4,7 @@ import styles from "./Teams.module.css";
 
 const TEAM_QUOTE =
 	"“Your curiosity can start an idea. Our teamwork can turn it into a breakthrough.”";
+const TEAM_QUOTE_BREAK = TEAM_QUOTE.indexOf("Our teamwork");
 
 const panelDescriptions = {
 	"IIC Co-ordinators":
@@ -98,6 +99,8 @@ export default function Teams() {
 	const [error, setError] = React.useState("");
 	const [typedQuote, setTypedQuote] = React.useState("");
 	const [typingFinished, setTypingFinished] = React.useState(false);
+	const directoryRef = React.useRef(null);
+	const hasAutoScrolled = React.useRef(false);
 
 	React.useEffect(() => {
 		let mounted = true;
