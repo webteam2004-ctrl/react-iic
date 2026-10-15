@@ -10,7 +10,7 @@ const getApiBaseUrl = () => {
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return 'http://localhost:5000/api';
     }
-    return 'https://react-iic.onrender.com/api';
+    return 'https://iic-backend-hatq.onrender.com/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
