@@ -1,62 +1,112 @@
 [
   {
-    "title": "SIH Internal Hackathon",
-    "date": 27,
-    "month": 7,
-    "year": 2026
-  },
-  {
-    "title": "Industrial Startup Visit (Neem Tree Toys)",
-    "date": 9,
-    "month": 7,
-    "year": 2026
-  },
-  {
-    "title": "WASTE TO BUILD (Pitch 2 Product) – Idea Pitching Contest",
+    "title": "Incubation Visit to SRM University",
     "date": 25,
-    "month": 4,
-    "year": 2026
-  },
-  {
-    "title": "Incubation Visit to KLU",
-    "date": 25,
-    "month": 2,
-    "year": 2026
-  },
-  {
-    "title": "Prime Minister Budget Webinar 2026",
-    "date": 9,
-    "month": 2,
-    "year": 2026
-  },
-  {
-    "title": "IDEATHON – Hack the Thought",
-    "date": 5,
-    "month": 1,
-    "year": 2026
-  },
-  {
-    "title": "Outreach to Uppalapadu",
-    "date": 28,
-    "month": 0,
-    "year": 2026
+    "month": 11,
+    "year": 2025,
+    "category": "Incubation",
+    "location": "SRM University, AP",
+    "time": "10:00 AM - 04:00 PM",
+    "description": "Student delegation and incubation cell interaction focusing on startup ecosystem best practices and seed funding."
   },
   {
     "title": "Ministry of Education's Innovation Cell",
     "date": 26,
     "month": 0,
-    "year": 2026
+    "year": 2026,
+    "category": "Webinar & Policy",
+    "location": "Virtual / Seminar Hall",
+    "time": "11:00 AM - 01:00 PM",
+    "description": "Interactive orientation session discussing MIC initiatives, national innovation guidelines, and institutional ranking frameworks."
   },
   {
-    "title": "Incubation Visit to SRM University",
+    "title": "Outreach to Uppalapadu",
+    "date": 28,
+    "month": 0,
+    "year": 2026,
+    "category": "Outreach",
+    "location": "Uppalapadu Bird Sanctuary & Village",
+    "time": "09:00 AM - 03:00 PM",
+    "description": "Community outreach program addressing local ecological conservation, eco-tourism ideas, and grassroots innovation."
+  },
+  {
+    "title": "IDEATHON – Hack the Thought",
+    "date": 5,
+    "month": 1,
+    "year": 2026,
+    "category": "Ideathon & Pitch",
+    "location": "VVITU Campus, Innovation Hub",
+    "time": "09:30 AM - 05:00 PM",
+    "description": "Ideation sprint challenging interdisciplinary teams to formulate scalable tech solutions for real-world campus & civic issues."
+  },
+  {
+    "title": "Prime Minister Budget Webinar 2026",
+    "date": 9,
+    "month": 2,
+    "year": 2026,
+    "category": "Webinar & Policy",
+    "location": "Digital Classroom / Online Stream",
+    "time": "10:30 AM - 12:30 PM",
+    "description": "Live broadcast and roundtable discussion on national budget allocations for youth entrepreneurship, R&D, and tech infrastructure."
+  },
+  {
+    "title": "Incubation Visit to KLU",
     "date": 25,
-    "month": 11,
-    "year": 2025
+    "month": 2,
+    "year": 2026,
+    "category": "Incubation",
+    "location": "KL University TBI",
+    "time": "10:00 AM - 04:30 PM",
+    "description": "Benchmarking visit to the Technology Business Incubator (TBI) exploring prototype laboratories, patent support, and mentoring clinics."
+  },
+  {
+    "title": "WASTE TO BUILD (Pitch 2 Product) – Idea Pitching Contest",
+    "date": 25,
+    "month": 4,
+    "year": 2026,
+    "category": "Ideathon & Pitch",
+    "location": "Auditorium Block A",
+    "time": "09:00 AM - 04:00 PM",
+    "description": "Sustainable innovation contest encouraging students to convert discarded materials and electronic waste into viable commercial prototypes."
+  },
+  {
+    "title": "Industrial Startup Visit (Neem Tree Toys)",
+    "date": 9,
+    "month": 7,
+    "year": 2026,
+    "category": "Industrial Visit",
+    "location": "Neem Tree Toys Facility",
+    "time": "08:30 AM - 02:30 PM",
+    "description": "Behind-the-scenes industrial exposure on product lifecycle management, sustainable toy manufacturing, and indigenous supply chains."
   },
   {
     "title": "Incubation Visit to RVR&JC",
     "date": 22,
     "month": 7,
-    "year": 2026
+    "year": 2026,
+    "category": "Incubation",
+    "location": "RVR & JC College of Engineering",
+    "time": "10:00 AM - 03:30 PM",
+    "description": "Collaborative symposium between IIC student ambassadors and regional incubators on cross-institutional hackathons."
+  },
+  {
+    "title": "SIH Internal Hackathon",
+    "date": 27,
+    "month": 7,
+    "year": 2026,
+    "category": "Hackathon",
+    "location": "Central Computing Lab",
+    "time": "24 Hours (Overnight)",
+    "description": "Rigorous internal selection hackathon for Smart India Hackathon (SIH 2026) featuring jury evaluation and team mentoring."
+  },
+  {
+    "title": "Engineer's Day",
+    "date": 15,
+    "month": 8,
+    "year": 2026,
+    "category": "Celebration",
+    "location": "Open Air Amphitheatre",
+    "time": "02:00 PM - 06:00 PM",
+    "description": "Celebrating Sir Mokshagundam Visvesvaraya's legacy with student tech exhibitions, project showcases, and innovation awards."
   }
 ]

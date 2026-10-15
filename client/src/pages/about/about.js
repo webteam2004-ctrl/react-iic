@@ -6,8 +6,17 @@ function About() {
 		<div className={styles.wrap}>
 
 			<section className={styles['page-hero']}>
-				<h1>About VVITU IIC</h1>
-				<p>Fostering a culture of innovation and entrepreneurship at Vasireddy Venkatadri Institute of Technology through comprehensive programs, world-class infrastructure, and strategic partnerships.</p>
+				<div className={styles['hero-badge']}>
+					<span className={styles['badge-dot']}></span>
+					<span>Institutional Heritage & Excellence</span>
+				</div>
+				<h1>About <span className={styles['gradient-text']}>VVITU IIC</span></h1>
+				<p>Fostering an enduring culture of curiosity, innovation, and technological entrepreneurship through comprehensive mentoring, world-class infrastructure, and national strategic partnerships.</p>
+				<div className={styles['hero-pill-row']}>
+					<span className={styles['hero-pill']}>🏛️ MoE Innovation Cell</span>
+					<span className={styles['hero-pill']}>🎓 AICTE Approved Model</span>
+					<span className={styles['hero-pill']}>🏆 ARIIA Band-A Excellence</span>
+				</div>
 			</section>
 			<section className={styles['content-section']}>
 				<h2 className={styles['section-title']}>Our Mission & Vision</h2>
@@ -27,7 +36,7 @@ function About() {
 					</div>
 				</div>
 			</section>
-			<section className={styles['content-section']} style={{ background: 'linear-gradient(135deg,rgba(107,91,168,0.05),rgba(244,162,56,0.03))', padding: '60px 40px', margin: 0 }}>
+			<section className={styles['content-section']} style={{ padding: '60px 40px', margin: 0 }}>
 				<h2 className={styles['section-title']}>Our Achievements</h2>
 				<div className={styles['stats-grid']}>
 					<div className={styles['stat-card']}>

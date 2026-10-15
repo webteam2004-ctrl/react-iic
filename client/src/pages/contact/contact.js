@@ -1,100 +1,354 @@
+// ============================================================================
+// ACTIVE IMPLEMENTATION (Integrated from Desktop with On-Load & On-Scroll Motion)
+// ============================================================================
+
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaLinkedinIn, FaInstagram } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import {
+	FaLinkedinIn,
+	FaInstagram,
+	FaMapMarkerAlt,
+	FaEnvelope,
+	FaPhone,
+	FaClock,
+	FaArrowRight
+} from 'react-icons/fa';
 import styles from './Contact.module.css';
+
+const scrollSectionVariants = {
+	hidden: { opacity: 0, y: 28 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+	}
+};
+
+const cardsStaggerVariants = {
+	hidden: { opacity: 0 },
+	visible: {
+		opacity: 1,
+		transition: {
+			staggerChildren: 0.1,
+			delayChildren: 0.05
+		}
+	}
+};
+
+const cardItemVariants = {
+	hidden: { opacity: 0, y: 20 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+	}
+};
+
 function Contact() {
 	return (
 		<div className={styles.wrap}>
 
-
 			<main>
-				<div className={styles['hero-contact']}>
-					<h1>Get In Touch</h1>
-					<p>Have questions about IIC? Want to collaborate or participate in our programs? We'd love to hear from you. Reach out through any channel below.</p>
-				</div>
 
-				<div className={styles['contact-container']}>
-					<div className={styles['contact-info']}>
-						<h2>Contact Information</h2>
-						<div className={styles['info-group']}>
-							<div className={styles['info-label']}>Email</div>
-							<div className={styles['info-content']}>
-								<a href="mailto:iicVVITU@VVITU.net">iicVVITU@VVITU.net</a><br />
-							</div>
+				{/* ================= CONTACT CARDS (ON-SCROLL STAGGER) ================= */}
+				<motion.section
+					className={styles['contact-cards']}
+					initial='hidden'
+					whileInView='visible'
+					viewport={{ once: true, margin: '-40px' }}
+					variants={cardsStaggerVariants}
+				>
+
+					<motion.div
+						className={styles['contact-card']}
+						variants={cardItemVariants}
+						whileHover={{ y: -4, transition: { duration: 0.2 } }}
+					>
+						<div className={styles['contact-icon']}>
+							<FaMapMarkerAlt />
 						</div>
-						<div className={styles['info-group']}>
-							<div className={styles['info-label']}>Phone</div>
-							<div className={styles['info-content']}>
-								<a href="tel:+919392042226">+91 93920 42226</a><br />
-								<a href="tel:+919490343393">+91 94903 43393</a>
-							</div>
+						<div>
+							<h3>Visit Us</h3>
+							<p>VVITU University, Namburu</p>
 						</div>
-						<div className={styles['info-group']}>
-							<div className={styles['info-label']}>Office Location</div>
-							<div className={styles['info-content']}>
-								Institution's Innovation Council<br />
-								VVITU University<br />
-								Namburu<br />
-								India
-							</div>
+					</motion.div>
+
+					<motion.div
+						className={styles['contact-card']}
+						variants={cardItemVariants}
+						whileHover={{ y: -4, transition: { duration: 0.2 } }}
+					>
+						<div className={styles['contact-icon']}>
+							<FaEnvelope />
 						</div>
-						<div className={styles['info-group']}>
-  <div className={styles['info-label']}>Follow Us</div>
 
-  <div className={styles['social-links']}>
+						<div>
+							<h3>Email Us</h3>
 
-    <a
-      href="https://www.linkedin.com/in/iic-VVITU-624755321/"
-      className={`${styles['social-link']} ${styles.linkedin}`}
-      aria-label="LinkedIn"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <FaLinkedinIn />
-    </a>
+							<a href='mailto:iicVVITU@VVITU.net'>
+								iicVVITU@VVITU.net
+							</a>
 
-    <a
-      href="https://www.instagram.com/iic_VVITU/"
-      className={`${styles['social-link']} ${styles.instagram}`}
-      aria-label="Instagram"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <FaInstagram />
-    </a>
+							<br />
 
-  </div>
-</div>
-						<div className={styles['info-group']}>
-							<div className={styles['info-label']}>Quick Links</div>
-							<div className={styles['info-content']}>
-								<Link to="/events">View Events</Link><br />
-								<Link to="/gallery">Event Gallery</Link><br />
-								<Link to="/teams">Meet the Team</Link>
-							</div>
+							<a href='mailto:vvitu@vvit.net'>
+								vvitu@vvit.net
+							</a>
 						</div>
+					</motion.div>
+
+					<motion.div
+						className={styles['contact-card']}
+						variants={cardItemVariants}
+						whileHover={{ y: -4, transition: { duration: 0.2 } }}
+					>
+						<div className={styles['contact-icon']}>
+							<FaPhone className={styles['phone-icon']} />
+						</div>
+						<div>
+							<h3>Call Us</h3>
+							<a href='tel:+919392042226'>
+								+91 93920 42226
+							</a>
+						</div>
+					</motion.div>
+
+					<motion.div
+						className={styles['contact-card']}
+						variants={cardItemVariants}
+						whileHover={{ y: -4, transition: { duration: 0.2 } }}
+					>
+						<div className={styles['contact-icon']}>
+							<FaClock />
+						</div>
+						<div>
+							<h3>Office Hours</h3>
+							<p>Mon – Sat · 8:00 AM – 4:00 PM</p>
+						</div>
+					</motion.div>
+
+				</motion.section>
+
+
+				{/* ================= FORM + COORDINATOR (ON-SCROLL ANIMATION) ================= */}
+				<motion.section
+					className={styles['main-contact-section']}
+					initial='hidden'
+					whileInView='visible'
+					viewport={{ once: true, margin: '-50px' }}
+					variants={scrollSectionVariants}
+				>
+
+					{/* CONTACT FORM */}
+					<div className={styles['form-card']}>
+
+						<div className={styles['section-heading']}>
+							<span>GET IN TOUCH</span>
+							<h2>Send Us a Message</h2>
+							<p>
+								Have a question or an innovative idea?
+								Fill out the form and our team will get back to you.
+							</p>
+						</div>
+
+						<form
+							className={styles['contact-form']}
+							onSubmit={(e) => e.preventDefault()}
+						>
+
+							<div className={styles['form-row']}>
+
+								<div className={styles['form-group']}>
+									<label htmlFor='name'>Full Name</label>
+									<input
+										id='name'
+										type='text'
+										placeholder='Enter your name'
+									/>
+								</div>
+
+								<div className={styles['form-group']}>
+									<label htmlFor='email'>Email Address</label>
+									<input
+										id='email'
+										type='email'
+										placeholder='Enter your email'
+									/>
+								</div>
+
+							</div>
+
+
+							<div className={styles['form-row']}>
+
+								<div className={styles['form-group']}>
+									<label htmlFor='department'>
+										Department / Year
+									</label>
+
+									<input
+										id='department'
+										type='text'
+										placeholder='e.g. CSE / 3rd Year'
+									/>
+								</div>
+
+								<div className={styles['form-group']}>
+									<label htmlFor='subject'>Subject</label>
+
+									<select id='subject' defaultValue=''>
+										<option value='' disabled>
+											Select a subject
+										</option>
+										<option value='general'>
+											General Inquiry
+										</option>
+										<option value='innovation'>
+											Innovation
+										</option>
+										<option value='startup'>
+											Startup
+										</option>
+										<option value='event'>
+											Event
+										</option>
+										<option value='collaboration'>
+											Collaboration
+										</option>
+										<option value='other'>
+											Other
+										</option>
+									</select>
+								</div>
+
+							</div>
+
+
+							<div className={styles['form-group']}>
+								<label htmlFor='message'>Message</label>
+
+								<textarea
+									id='message'
+									rows='5'
+									placeholder='Tell us how we can help...'
+								></textarea>
+							</div>
+
+
+							<motion.button
+								type='submit'
+								className={styles['submit-btn']}
+								whileHover={{ scale: 1.02 }}
+								whileTap={{ scale: 0.98 }}
+							>
+								Send Message
+								<FaArrowRight />
+							</motion.button>
+
+						</form>
+
 					</div>
-					<div className={styles['map-section']}>
-						<div className={styles['map-title']}>
-							<h2>Visit Us</h2>
-							<p>Located at VVITU University in Namburu, our innovation hub is easily accessible and equipped with modern facilities for collaboration and innovation.</p>
-						</div>
-						<div className={styles['map-container']}>
+
+				</motion.section>
+
+
+				{/* ================= MAP (ON-SCROLL ANIMATION) ================= */}
+				<motion.section
+					className={styles['map-section']}
+					initial='hidden'
+					whileInView='visible'
+					viewport={{ once: true, margin: '-50px' }}
+					variants={scrollSectionVariants}
+				>
+
+					<div className={styles['map-title']}>
+						<span>FIND US</span>
+						<h2>Visit Our Campus</h2>
+						<p>
+							Located at VVITU University in Namburu,
+							our innovation community is open to students,
+							faculty and collaborators.
+						</p>
+					</div>
+
+					<div className={styles['map-content']}>
+
+						<motion.div
+							className={styles['map-container']}
+							initial={{ opacity: 0, scale: 0.98 }}
+							whileInView={{ opacity: 1, scale: 1 }}
+							viewport={{ once: true }}
+							transition={{ duration: 0.5 }}
+						>
 							<iframe
-								src="https://maps.google.com/maps?q=Vasireddy%20Venkatadri%20Institute%20of%20Technology%2C%20Nambur&t=&z=15&ie=UTF8&iwloc=&output=embed"
-								width="100%"
-								height="100%"
+								src='https://www.google.com/maps?q=16.3441622,80.524442&z=17&output=embed'
+								width='100%'
+								height='100%'
 								style={{ border: 0 }}
 								allowFullScreen
-								loading="lazy"
-								referrerPolicy="no-referrer-when-downgrade"
-								title="VVITU University Map"
+								loading='eager'
+								referrerPolicy='no-referrer-when-downgrade'
+								title='VVITU University Map'
 							></iframe>
-						</div>
-					</div>
-				</div>
-			</main>
+						</motion.div>
 
+						<motion.div
+							className={styles['address-card']}
+							initial={{ opacity: 0, x: 20 }}
+							whileInView={{ opacity: 1, x: 0 }}
+							viewport={{ once: true }}
+							transition={{ duration: 0.5, delay: 0.1 }}
+						>
+
+							<span>OUR LOCATION</span>
+
+							<h3>Institution's Innovation Council</h3>
+
+							<p>
+								Vasireddy Venkatadri Institute of Technology
+								(VVITU)
+							</p>
+
+							<p>
+								Namburu, Guntur District,
+								Andhra Pradesh, India
+							</p>
+
+							<div className={styles['address-divider']}></div>
+
+							<h4>Follow IIC</h4>
+
+							<div className={styles['social-links']}>
+
+								<a
+									href='https://www.linkedin.com/in/iic-VVITU-624755321/'
+									className={styles['social-link']}
+									aria-label='LinkedIn'
+									target='_blank'
+									rel='noopener noreferrer'
+								>
+									<FaLinkedinIn />
+								</a>
+
+								<a
+									href='https://www.instagram.com/iic_VVITU/'
+									className={styles['social-link']}
+									aria-label='Instagram'
+									target='_blank'
+									rel='noopener noreferrer'
+								>
+									<FaInstagram />
+								</a>
+
+							</div>
+
+						</motion.div>
+
+					</div>
+
+				</motion.section>
+
+			</main>
 
 		</div>
 	);

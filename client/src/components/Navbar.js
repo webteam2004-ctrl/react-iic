@@ -25,32 +25,19 @@ function Navbar() {
     return (
         <header className={scrolled ? 'scrolled' : ''}>
             <div className="header-inner">
-                <div className="brand">
-                    <img src="/images/VVITULogo_Final.png" alt="VVITU Logo" />
+                <Link to="/" className="brand" aria-label="VVITU IIC Home">
                     <img src="/images/IIC.png" alt="IIC Logo" />
-                </div>
+                    <img className="brand-vvitu-logo" src="/images/VVITULogo_Final.png" alt="VVITU" />
+                </Link>
 
                 <div className="nav-right">
                     <nav id="main-nav" className={menuOpen ? 'open' : ''}>
                         <Link to="/" className={currentPath === '/' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Home</Link>
+                        <Link to="/ideahub" className={currentPath === '/ideahub' || currentPath === '/ideabank' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Idea Hub</Link>
                         <Link to="/events" className={currentPath === '/events' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Events</Link>
-                        <Link to="/calender" className={currentPath === '/calender' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Calendar</Link>
                         <Link to="/gallery" className={currentPath === '/gallery' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Gallery</Link>
+                        <Link to="/calender" className={currentPath === '/calender' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Calendar</Link>
                         <Link to="/teams" className={currentPath === '/teams' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Teams</Link>
-                        <Link
-                            to="/challenge"
-                            className={`nav-live-link ${currentPath === '/challenge' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                            title="Challenge is LIVE NOW — Click to view details and teams"
-                            aria-label="Challenge - Live Now"
-                        >
-                            <span className="live-indicator" aria-hidden="true">
-                                <span className="live-ping"></span>
-                                <span className="live-dot"></span>
-                            </span>
-                            <span className="live-label">Challenge</span>
-                            <span className="live-tag">LIVE</span>
-                        </Link>
                         <Link to="/contact" className={currentPath === '/contact' ? 'active' : ''} onClick={() => setMenuOpen(false)}>Contact</Link>
                     </nav>
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import styles from './adminLogin.module.css';
 
 function AdminLogin() {
@@ -7,7 +8,9 @@ function AdminLogin() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -15,26 +18,11 @@ function AdminLogin() {
         setError('');
 
         try {
-            const API_URL = process.env.REACT_APP_API_URL || "https://react-iic.onrender.com/api";
-            const response = await fetch(`${API_URL}/admin/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('isAdmin', 'true');
-                navigate('/admin-challenges'); // Redirects to the Admin dashboard
-            } else {
-                const errorData = await response.json();
-                setError(errorData.message || "Invalid credentials");
-            }
+            await login(email, password);
+            const redirectPath = location.state?.from?.pathname || '/admin';
+            navigate(redirectPath, { replace: true });
         } catch (err) {
-            setError("Server error. Ensure backend is running.");
+            setError(err.message || 'Authentication failed. Please verify credentials.');
         } finally {
             setLoading(false);
         }
@@ -49,9 +37,10 @@ function AdminLogin() {
                     <div className={styles.inputGroup}>
                         <label>Admin Email ID</label>
                         <input
-                            type="text"
+                            type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            placeholder="admin@iicvvit.in"
                             required
                         />
                     </div>
@@ -61,6 +50,7 @@ function AdminLogin() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
                             required
                         />
                     </div>

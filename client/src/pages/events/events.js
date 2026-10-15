@@ -1,369 +1,478 @@
-import React, { useEffect, useState } from 'react';
-import styles from './Events.module.css';
+// ============================================================================
+// ACTIVE IMPLEMENTATION (Integrated from Desktop)
+// ============================================================================
+import { useEffect, useState } from "react";
+import styles from "./Events.module.css";
+import { api, resolveMediaUrl } from "../../services/api";
 
-/* =========================
-   LIVE EVENT
-========================= */
-
-const LIVE_EVENT = {
-  image: 'https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SIH2026/Screenshot%202026-08-21%20161227_imgupscaler.ai_General_4K.jpg',
-  registrationLink:
-    'https://docs.google.com/forms/d/e/1FAIpQLSfkqOn1rGzMeCQbjd0n6bO1KlhuayRpWkLEg48iVYa8trcsYA/closedform'
-};
-
-/* =========================
-   PAST EVENTS
-========================= */
-
-const PAST_EVENTS = [
-  /* ---------- HACKATHONS ---------- */
-
-  {
-    id: 'h1',
-    category: 'Hackathons',
-    title: 'SIH 2024',
-    image: '/events/hackathons/sih2024.jpeg',
-    date: '2024',
-    description:
-      'Smart India Hackathon 2024, a platform where students worked on innovative solutions for real-world problem statements.'
-  },
-  {
-    id: 'h2',
-    category: 'Hackathons',
-    title: 'SIH 2025',
-    image: '/events/hackathons/sih2025.jpeg',
-    date: '2025',
-    description:
-      'Smart India Hackathon 2025 encouraged students to collaborate, innovate, and develop technology-driven solutions.'
-  },
-
-  /* ---------- IDEATHONS ---------- */
+const classNames = (...names) =>
+  names.filter(Boolean).map((name) => styles[name]).join(" ");
 
 
-  {
-    id: 'i4',
-    category: 'Ideathons',
-    title: 'Inter-Institutional Startup Competition',
-    image: '/events/ideathons/iiscideathon.jpeg',
-    date: '2023',
-    description:
-      'An inter-institutional competition focused on startup ideas, innovation, entrepreneurship, and collaboration among students.'
-  },
-  {
-    id: 'i5',
-    category: 'Ideathons',
-    title: 'Innovate It',
-    image: '/events/ideathons/innovateit_ideathon.jpeg',
-    date: '2022',
-    description:
-      'An ideathon conducted to discover and encourage innovative student ideas with the potential to solve real-world problems.'
-  },
-
-  /* ---------- TECHNICAL EVENTS ---------- */
-
-  {
-    id: 't1',
-    category: 'Technical Events',
-    title: 'Invention Through Innovation',
-    image: '/events/technicalevents/te1.jpeg',
-    date: '2023',
-    description:
-      'An innovation-focused event that encouraged students to explore creative ideas, inventions, and practical solutions.'
-  },
-  {
-    id: 't2',
-    category: 'Technical Events',
-    title: 'Innovation Experience',
-    image: '/events/technicalevents/te2.jpeg',
-    date: '2022',
-    description:
-      'A multi-event innovation experience featuring activities such as Marketing Magics, Scavenger Hunt, Stock Wars, and other creative challenges.'
-  },
-  {
-    id: 't3',
-    category: 'Technical Events',
-    title: 'Innovation Intramurals',
-    image: '/events/technicalevents/te3.jpeg',
-    description:
-      'A two-day intramural event featuring innovation-based activities, mathematics, ideas, and engaging student challenges.'
-  },
-  {
-    id: 't4',
-    category: 'Technical Events',
-    title: 'Mind Mashrims',
-    image: '/events/technicalevents/te4.jpeg',
-    description:
-      'A technical and creative event designed to challenge students through engaging activities and innovative thinking.'
-  },
-  {
-    id: 't5',
-    category: 'Technical Events',
-    title: 'Stock Wars',
-    image: '/events/technicalevents/te5.jpeg',
-    description:
-      'A technical event related to stock markets, where participants explored investment strategies and decision-making.'
-  },
-  {
-    id: 't6',
-    category: 'Technical Events',
-    title: 'Innovation Hunt',
-    image: '/events/technicalevents/te6.jpeg',
-    description:
-      'An innovation-based event focused on exploring the journey from innovative ideas and investment towards entrepreneurship.'
-  },
-  {
-    id: 't7',
-    category: 'Technical Events',
-    title: 'Recall Masters',
-    image: '/events/technicalevents/te7.jpeg',
-    description:
-      'A challenging event designed to test participants’ memory, recall ability, observation, and quick thinking.'
-  },
-  {
-    id: 't8',
-    category: 'Technical Events',
-    title: 'Memory Wizards',
-    image: '/events/technicalevents/te8.jpeg',
-    description:
-      'An engaging memory-based competition that challenged students to demonstrate their recall and observation skills.'
-  },
-  {
-    id: 't9',
-    category: 'Technical Events',
-    title: 'Techmania',
-    image: '/events/technicalevents/te9.jpeg',
-    description:
-      'A technical event bringing together students through technology, innovation, creativity, and exciting challenges.'
-  }
+const categories = [
+  "All Events",
+  "Hackathons",
+  "Ideathons",
+  "Technical Events",
 ];
 
-/* =========================
-   COMPONENT
-========================= */
+const staticEvents = [
+  {
+    id: "h1",
+    category: "Hackathons",
+    title: "SIH 2024",
+    image: "/events/hackathons/sih2024.jpeg",
+    date: "2024",
+    displayDate: "2024",
+  },
+  {
+    id: "h2",
+    category: "Hackathons",
+    title: "SIH 2025",
+    image: "/events/hackathons/sih2025.jpeg",
+    date: "2025",
+    displayDate: "2025",
+  },
+  {
+    id: "i4",
+    category: "Ideathons",
+    title: "Inter-Institutional Startup Competition",
+    image: "/events/ideathons/iiscideathon.jpeg",
+    date: "2023",
+    displayDate: "2023",
+  },
+  {
+    id: "i5",
+    category: "Ideathons",
+    title: "Innovate It",
+    image: "/events/ideathons/innovateit_ideathon.jpeg",
+    date: "2022",
+    displayDate: "2022",
+  },
+  {
+    id: "t1",
+    category: "Technical Events",
+    title: "Invention Through Innovation",
+    image: "/events/technicalevents/te1.jpeg",
+    date: "2023",
+    displayDate: "2023",
+  },
+  {
+    id: "t2",
+    category: "Technical Events",
+    title: "Innovation Experience",
+    image: "/events/technicalevents/te2.jpeg",
+    date: "2022",
+    displayDate: "2022",
+  },
+  {
+    id: "t3",
+    category: "Technical Events",
+    title: "Innovation Intramurals",
+    image: "/events/technicalevents/te3.jpeg",
+    displayDate: "2022",
+  },
+  {
+    id: "t4",
+    category: "Technical Events",
+    title: "Mind Mashrims",
+    image: "/events/technicalevents/te4.jpeg",
+    displayDate: "2022",
+  },
+  {
+    id: "t5",
+    category: "Technical Events",
+    title: "Stock Wars",
+    image: "/events/technicalevents/te5.jpeg",
+    displayDate: "2022",
+  },
+  {
+    id: "t6",
+    category: "Technical Events",
+    title: "Innovation Hunt",
+    image: "/events/technicalevents/te6.jpeg",
+    displayDate: "2022",
+  },
+  {
+    id: "t7",
+    category: "Technical Events",
+    title: "Recall Masters",
+    image: "/events/technicalevents/te7.jpeg",
+    displayDate: "2023",
+  },
+  {
+    id: "t8",
+    category: "Technical Events",
+    title: "Memory Wizards",
+    image: "/events/technicalevents/te8.jpeg",
+    displayDate: "2023",
+  },
+  {
+    id: "t9",
+    category: "Technical Events",
+    title: "Techmania",
+    image: "/events/technicalevents/te9.jpeg",
+    displayDate: "2023",
+  },
+];
 
-function Events() {
-  const [activeFilter, setActiveFilter] = useState('All Events');
-  const [selectedEvent, setSelectedEvent] = useState(null);
+const accentNames = ["rose", "blue", "amber"];
+const eventsPerRow = 3;
 
-  const filters = [
-    'All Events',
-    'Hackathons',
-    'Ideathons',
-    'Technical Events'
-  ];
+const getEventTimestamp = ({ date, displayDate }) => {
+  const timestamp = Date.parse(String(date ?? displayDate ?? ""));
+  return Number.isNaN(timestamp) ? null : timestamp;
+};
 
-  const filteredEvents =
-    activeFilter === 'All Events'
-      ? [...PAST_EVENTS].sort((a, b) => {
-        const dateA = a.date ? parseInt(a.date) : -Infinity;
-        const dateB = b.date ? parseInt(b.date) : -Infinity;
-        return dateB - dateA;
-      })
-      : [...PAST_EVENTS]
-        .filter((event) => event.category === activeFilter)
-        .sort((a, b) => {
-          const dateA = a.date ? parseInt(a.date) : -Infinity;
-          const dateB = b.date ? parseInt(b.date) : -Infinity;
-          return dateB - dateA;
-        });
-
-  /* =========================
-     HASH SCROLL
-  ========================= */
-
-  useEffect(() => {
-    if (window.location.hash) {
-      const element = document.getElementById(
-        window.location.hash.slice(1)
-      );
-
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }, 100);
-      }
-    }
-  }, []);
-
+function CalendarIcon() {
   return (
-    <div className={styles.wrap}>
-      <main>
-
-        {/* ================= HERO ================= */}
-
-        <div className={styles['hero-events']}>
-          <h1>Events</h1>
-
-          <p>
-            Explore the latest activities, competitions, workshops,
-            and innovation initiatives of IIC VVITU.
-          </p>
-        </div>
-
-        {/* ================= LIVE EVENT ================= */}
-
-        <section id="ongoing">
-
-          <div className={styles['section-header']}>
-            <h2>Live Event</h2>
-            <div className={styles['section-line']} />
-          </div>
-
-          <div className={styles['live-event-wrapper']}>
-
-            <div className={styles['live-poster']}>
-
-              {/* LIVE - TOP LEFT */}
-
-              <div className={styles['live-badge']}>
-                <span className={styles.dot}></span>
-                LIVE
-              </div>
-
-              {/* ONGOING - TOP RIGHT */}
-
-              <div className={styles['status-badge']}>
-                ONGOING
-              </div>
-
-              <img
-                src={LIVE_EVENT.image}
-                alt="Live IIC Event"
-              />
-
-            </div>
-
-            <a
-              href={LIVE_EVENT.registrationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles['register-btn']}
-            >
-              Registrations Closed
-            </a>
-
-          </div>
-
-        </section>
-
-        {/* ================= PAST EVENTS ================= */}
-
-        <section id="past">
-
-          <div className={styles['section-header']}>
-            <h2>Past Events</h2>
-            <div className={styles['section-line']} />
-          </div>
-
-          {/* ================= FILTERS ================= */}
-
-          <div className={styles['event-filters']}>
-
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => setActiveFilter(filter)}
-                className={`${styles['filter-btn']} ${activeFilter === filter
-                    ? styles.active
-                    : ''
-                  }`}
-              >
-                {filter}
-              </button>
-            ))}
-
-          </div>
-
-          {/* ================= EVENT IMAGES ================= */}
-
-          <div className={styles['poster-grid']}>
-
-            {filteredEvents.map((event) => (
-
-              <button
-                type="button"
-                className={styles['poster-card']}
-                key={event.id}
-
-                aria-label={`View details for ${event.title}`}
-              >
-
-                <div className={styles['completed-badge']}>
-                  COMPLETED
-                </div>
-
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  loading="lazy"
-                />
-
-              </button>
-
-            ))}
-
-          </div>
-
-        </section>
-
-      </main>
-
-      {/* ================= EVENT DETAILS MODAL ================= */}
-
-      {selectedEvent && (
-
-        <div
-          className={styles['event-modal-overlay']}
-          onClick={() => setSelectedEvent(null)}
-        >
-
-          <div
-            className={styles['event-modal']}
-            onClick={(e) => e.stopPropagation()}
-          >
-
-            <button
-              type="button"
-              className={styles['modal-close']}
-              onClick={() => setSelectedEvent(null)}
-              aria-label="Close"
-            >
-              ×
-            </button>
-
-            <div className={styles['modal-image']}>
-              <img
-                src={selectedEvent.image}
-                alt={selectedEvent.title}
-              />
-            </div>
-
-            <div className={styles['modal-content']}>
-
-              <span className={styles['modal-category']}>
-                {selectedEvent.category}
-              </span>
-
-              <h2>{selectedEvent.title}</h2>
-
-              <p>
-                {selectedEvent.description}
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
-
-    </div>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+    </svg>
   );
 }
 
-export default Events;
+function RowTurnArrow({ reverse, colorIndex }) {
+  return (
+    <svg
+      className={classNames("row-turn", `turn-${colorIndex}`, reverse && "reverse")}
+      viewBox="0 0 140 580"
+      aria-hidden="true"
+      preserveAspectRatio="none"
+    >
+      <g transform={reverse ? "translate(140 0) scale(-1 1)" : undefined}>
+        <path
+          className={styles["turn-path"]}
+          pathLength="1"
+          d="M4 8h63c33 0 53 17 53 49v454c0 32-20 49-53 49H14"
+        />
+        <path
+          className={styles["turn-tip"]}
+          pathLength="1"
+          d="m29 544-17 16 17 16"
+        />
+      </g>
+    </svg>
+  );
+}
+
+function EventConnector({ reverse }) {
+  return (
+    <svg viewBox="0 0 112 150" aria-hidden="true">
+      <g transform={reverse ? "translate(112 0) scale(-1 1)" : undefined}>
+        <path
+          className={styles["connector-path"]}
+          pathLength="1"
+          d="M3 131h31c14 0 22-7 26-20l17-66c3-12 10-18 22-18h8"
+        />
+        <path
+          className={styles["connector-tip"]}
+          pathLength="1"
+          d="m92 12 16 15-18 14"
+        />
+      </g>
+    </svg>
+  );
+}
+
+export default function Events() {
+  const [activeFilter, setActiveFilter] =
+    useState("All Events");
+  const [eventsList, setEventsList] = useState(staticEvents);
+  const [typedTitle, setTypedTitle] = useState("");
+  const [typingFinished, setTypingFinished] = useState(false);
+  const typedHeadline = "Dream it. Challenge it. Make it happen.";
+  const breakIndex = "Dream it. Challenge it.".length;
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadEvents() {
+      try {
+        const res = await api.events.getAll();
+        if (res && res.success && Array.isArray(res.events) && res.events.length > 0) {
+          const dbItems = res.events
+            .filter((e) => e.status !== "archived")
+            .map((e) => {
+              const d = e.start_time ? new Date(e.start_time) : null;
+              return {
+                id: `db-${e.id}`,
+                category: e.category || "Technical Events",
+                title: e.title,
+                image: e.cover_image?.public_url || e.cover_image?.image_url || e.banner_url || "/events/technicalevents/te1.jpeg",
+                images: e.gallery?.length
+                  ? e.gallery.map((image) => resolveMediaUrl(image.public_url || image.image_url))
+                  : [e.cover_image?.public_url || e.cover_image?.image_url || e.banner_url || "/events/technicalevents/te1.jpeg"],
+                date: d && !isNaN(d.getTime()) ? d.toISOString() : "2026",
+                displayDate: d && !isNaN(d.getTime())
+                  ? d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+                  : "2026",
+                  };
+            });
+
+          const dbTitles = new Set(dbItems.map((item) => item.title.toLowerCase().trim()));
+          const nonDupStatic = staticEvents.filter(
+            (item) => !dbTitles.has(item.title.toLowerCase().trim())
+          );
+
+          if (isMounted) {
+            setEventsList([...dbItems, ...nonDupStatic]);
+          }
+        }
+      } catch (err) {
+        console.warn("[Events] Could not fetch live events from API:", err);
+      }
+    }
+
+    loadEvents();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typingFinished) return undefined;
+    if (typedTitle.length >= typedHeadline.length) {
+      setTypingFinished(true);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setTypedTitle(typedHeadline.slice(0, typedTitle.length + 1));
+    }, 32);
+
+    return () => window.clearTimeout(timer);
+  }, [typedHeadline, typedTitle, typingFinished]);
+
+  const filteredEvents = eventsList
+    .filter(
+      (event) =>
+        activeFilter === "All Events" || event.category === activeFilter,
+    )
+    .sort((a, b) => {
+      const timestampA = getEventTimestamp(a);
+      const timestampB = getEventTimestamp(b);
+      if (timestampA === null) return timestampB === null ? 0 : 1;
+      if (timestampB === null) return -1;
+      return timestampB - timestampA;
+    });
+  const timelineRows = Array.from(
+    { length: Math.ceil(filteredEvents.length / eventsPerRow) },
+    (_, index) =>
+      filteredEvents.slice(
+        index * eventsPerRow,
+        index * eventsPerRow + eventsPerRow,
+      ),
+  );
+
+  useEffect(() => {
+    const rows = document.querySelectorAll("[data-timeline-row]");
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reduceMotion) {
+      rows.forEach((row) => row.classList.add(styles["is-visible"]));
+      return;
+    }
+
+    rows.forEach((row) => row.classList.add(styles["motion-ready"]));
+    // Commit the hidden starting state before observing visible rows.
+    void rows[0]?.offsetWidth;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add(styles["is-visible"]);
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -28% 0px" },
+    );
+
+    rows.forEach((row) => observer.observe(row));
+    return () => observer.disconnect();
+  }, [activeFilter]);
+
+  useEffect(() => {
+    const featuredCard = document.querySelector(
+      "[data-featured-card]",
+    );
+    if (!featuredCard) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      featuredCard.classList.add(styles["is-visible"]);
+      return;
+    }
+
+    featuredCard.classList.add(styles["motion-ready"]);
+    // Commit the translated starting state before triggering the reveal.
+    void featuredCard.offsetWidth;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        featuredCard.classList.add(styles["is-visible"]);
+        observer.disconnect();
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -8% 0px" },
+    );
+
+    observer.observe(featuredCard);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <main className={styles["events-page"]}>
+      <header className={styles["events-hero"]}>
+        <div className={styles["hero-top"]}>
+          <p className={styles["eyebrow"]}>IIC VVITU · THINK BEYOND LIMITS</p>
+        </div>
+
+        <div className={styles["hero-layout"]}>
+          <h1>
+            <span>
+              {typedTitle.length <= breakIndex
+                ? typedTitle
+                : typedTitle.slice(0, breakIndex)}
+            </span>
+            {typedTitle.length > breakIndex && (
+              <>
+                <br />
+                <span>{typedTitle.slice(breakIndex).trimStart()}</span>
+              </>
+            )}
+            {!typingFinished && (
+              <span className={styles["heading-cursor"]} aria-hidden="true" />
+            )}
+          </h1>
+
+          <p className={styles["hero-copy"]}>
+            From exciting competitions to hands-on workshops, discover opportunities that transform {" "}
+            <br className={styles["hero-copy-break"]} />
+            curiosity into confidence and ideas into impact.
+          </p>
+        </div>
+      </header>
+
+      <section className={styles["past-section"]} aria-labelledby="past-title">
+        <div className={styles["section-heading"]}>
+          <div>
+            <p className={styles["section-kicker"]}>Our journey</p>
+            <h2 id="past-title">Past events</h2>
+          </div>
+          <span className={styles["heading-rule"]} />
+        </div>
+
+        <div className={styles["filters"]} aria-label="Filter events">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={classNames("filter", activeFilter === category && "active")}
+              type="button"
+              aria-pressed={activeFilter === category}
+              onClick={() => setActiveFilter(category)}
+              onPointerMove={(event) => {
+                const bounds = event.currentTarget.getBoundingClientRect();
+                const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+                const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+                event.currentTarget.style.setProperty("--move-x", `${x * 5}px`);
+                event.currentTarget.style.setProperty("--move-y", `${y * 4}px`);
+                event.currentTarget.style.setProperty(
+                  "--tilt",
+                  `${x * 2.5}deg`,
+                );
+                event.currentTarget.style.backgroundColor =
+                  x < -0.12 ? "#fff1f4" : x > 0.12 ? "#edf7ff" : "#fff9e9";
+              }}
+              onPointerLeave={(event) => {
+                event.currentTarget.style.removeProperty("--move-x");
+                event.currentTarget.style.removeProperty("--move-y");
+                event.currentTarget.style.removeProperty("--tilt");
+                event.currentTarget.style.removeProperty("background-color");
+              }}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        <div className={styles["timeline-board"]}>
+          {timelineRows.map((row, rowIndex) => {
+            const isReverse = rowIndex % 2 === 1;
+
+            return (
+              <div
+                className={classNames("timeline-row", isReverse && "reverse")}
+                key={`${activeFilter}-row-${rowIndex}`}
+                data-timeline-row
+              >
+                {row.map((event, eventIndex) => {
+                  const index = rowIndex * eventsPerRow + eventIndex;
+                  const accent = accentNames[index % accentNames.length];
+
+                  return (
+                    <div
+                      className={classNames(
+                        "timeline-step",
+                        index === filteredEvents.length - 1 && "final-step",
+                      )}
+                      key={event.id}
+                    >
+                      <article className={classNames("event-card", accent)}>
+                        <span className={styles["card-trace"]} aria-hidden="true" />
+                        <span className={styles["event-number"]}>
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <div className={styles["poster-frame"]}>
+                          <div className={styles["poster-fallback"]}>
+                            <span>{event.category}</span>
+                            <strong>{event.title}</strong>
+                          </div>
+                          <img
+                            src={event.image}
+                            alt=""
+                            loading="lazy"
+                            onError={(error) => {
+                              error.currentTarget.style.display = "none";
+                            }}
+                          />
+                        </div>
+
+                        <div className={styles["date-ribbon"]}>
+                          <CalendarIcon />
+                          <span>{event.displayDate}</span>
+                        </div>
+
+                        <div className={styles["event-card-content"]}>
+                          <h3>{event.title}</h3>
+                        </div>
+                      </article>
+
+                      {eventIndex < row.length - 1 && (
+                        <span
+                          className={classNames("event-connector", `connector-${index % 3}`)}
+                          aria-hidden="true"
+                        >
+                          <EventConnector reverse={isReverse} />
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {rowIndex < timelineRows.length - 1 && (
+                  <RowTurnArrow
+                    reverse={isReverse}
+                    colorIndex={rowIndex % 3}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+    </main>
+  );
+}

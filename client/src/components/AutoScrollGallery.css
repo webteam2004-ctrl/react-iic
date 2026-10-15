@@ -1,0 +1,117 @@
+.auto-gallery {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.auto-gallery__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.auto-gallery__track--left {
+  animation: auto-gallery-left var(--auto-gallery-duration, 48s) linear infinite;
+}
+
+.auto-gallery__track--right {
+  transform: translateX(-50%);
+  animation: auto-gallery-right var(--auto-gallery-duration, 48s) linear infinite;
+}
+
+.auto-gallery:hover .auto-gallery__track,
+.auto-gallery:focus-within .auto-gallery__track {
+  animation-play-state: paused;
+}
+
+.auto-gallery__group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 16px;
+  padding-right: 16px;
+}
+
+.auto-gallery__item {
+  position: relative;
+  flex: 0 0 clamp(240px, 25vw, 330px);
+  height: 280px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #111827;
+}
+
+.auto-gallery__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.auto-gallery__item:hover img {
+  transform: scale(1.04);
+}
+
+.auto-gallery__item::after {
+  content: '';
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.76));
+  pointer-events: none;
+}
+
+.auto-gallery__item figcaption {
+  position: absolute;
+  z-index: 1;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes auto-gallery-left {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes auto-gallery-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 600px) {
+  .auto-gallery__group {
+    gap: 12px;
+    padding-right: 12px;
+  }
+
+  .auto-gallery__item {
+    flex-basis: min(76vw, 290px);
+    height: 220px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auto-gallery {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .auto-gallery__track,
+  .auto-gallery__track--right {
+    width: max-content;
+    transform: none;
+    animation: none;
+  }
+
+  .auto-gallery__group[aria-hidden='true'] {
+    display: none;
+  }
+}

@@ -108,20 +108,17 @@ function AdminChallenges() {
         );
       }
 
-      // Immediately update UI
+      if (!result.challenge) {
+        throw new Error('Updated challenge was not returned by the server.');
+      }
+
       setChallenges((previousChallenges) =>
         previousChallenges.map((challenge) =>
           challenge.id === id
-            ? {
-              ...challenge,
-              web_team_review_status: status
-            }
+            ? result.challenge
             : challenge
         )
       );
-
-      // Fetch latest data from database
-      await fetchChallenges(false);
 
       setMessage({
         type: 'success',
@@ -175,20 +172,17 @@ function AdminChallenges() {
         );
       }
 
-      // Immediately update UI
+      if (!result.challenge) {
+        throw new Error('Updated challenge was not returned by the server.');
+      }
+
       setChallenges((previousChallenges) =>
         previousChallenges.map((challenge) =>
           challenge.id === id
-            ? {
-              ...challenge,
-              faculty_review_status: status
-            }
+            ? result.challenge
             : challenge
         )
       );
-
-      // Fetch latest data from database
-      await fetchChallenges(false);
 
       setMessage({
         type: 'success',
@@ -819,4 +813,3 @@ function AdminChallenges() {
 }
 
 export default AdminChallenges;
-
