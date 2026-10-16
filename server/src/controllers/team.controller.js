@@ -133,14 +133,41 @@ export const createTeamMember = async (req, res) => {
 
 export const getAllTeamMemeber = async (req, res) => {
     try {
+        // Fetch all distinct versions present in the DB so we know what's actually published
+        const { data: versionRows, error: versionError } = await supabase
+            .from("team_members")
+            .select("teams_version")
+            .not("teams_version", "is", null);
+
+        if (versionError) throw versionError;
+
+        // Build a sorted list of unique version strings (e.g. ["1.0", "2.0"])
+        const uniqueVersions = [
+            ...new Set((versionRows || []).map((r) => r.teams_version).filter(Boolean))
+        ].sort((a, b) => parseFloat(a) - parseFloat(b));
+
+        // Highest version in the DB is the default; fall back to the calendar-based version
+        const highestDbVersion =
+            uniqueVersions.length > 0
+                ? uniqueVersions[uniqueVersions.length - 1]
+                : getCurrentTeamsVersion();
+
+        // Use the full static list when no DB data, otherwise only show versions that exist
+        const availableVersions =
+            uniqueVersions.length > 0 ? uniqueVersions : getAvailableTeamsVersions();
+
         const requestedVersion = req.query.teams_version
             ? normalizeTeamsVersion(req.query.teams_version)
             : null;
+
         let query = supabase
             .from("team_members")
             .select("*")
             .order("display_order", { ascending: true });
-        if (requestedVersion) query = query.eq("teams_version", requestedVersion);
+
+        // If caller didn't specify a version, default to the highest one
+        const effectiveVersion = requestedVersion || highestDbVersion;
+        query = query.eq("teams_version", effectiveVersion);
 
         const { data, error } = await query;
 
@@ -155,8 +182,8 @@ export const getAllTeamMemeber = async (req, res) => {
             message: "Team members fetched successfully",
             teamMembers,
             teams: teamMembers,
-            currentVersion: getCurrentTeamsVersion(),
-            availableVersions: getAvailableTeamsVersions()
+            currentVersion: highestDbVersion,
+            availableVersions
         });
     } catch (error) {
         console.error("[Team] Get all error:", error);

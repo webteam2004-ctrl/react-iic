@@ -1,8 +1,7 @@
 import React from "react";
 import { api, resolveMediaUrl } from "../../services/api";
 import {
-	getAvailableTeamsVersions,
-	getCurrentTeamsVersion
+	getAvailableTeamsVersions
 } from "../../utils/teamVersion";
 import styles from "./Teams.module.css";
 
@@ -100,7 +99,8 @@ export default function Teams() {
 	const [members, setMembers] = React.useState([]);
 	const [loading, setLoading] = React.useState(true);
 	const [error, setError] = React.useState("");
-	const [selectedVersion, setSelectedVersion] = React.useState(getCurrentTeamsVersion());
+	// Start null — the API response will tell us the highest published version
+	const [selectedVersion, setSelectedVersion] = React.useState(null);
 	const [availableVersions, setAvailableVersions] = React.useState(getAvailableTeamsVersions());
 	const [typedQuote, setTypedQuote] = React.useState("");
 	const [typingFinished, setTypingFinished] = React.useState(false);
@@ -109,12 +109,27 @@ export default function Teams() {
 		let mounted = true;
 		setLoading(true);
 		setError("");
-		api.teams.getAll({ teams_version: selectedVersion })
+		const params = selectedVersion ? { teams_version: selectedVersion } : {};
+		api.teams.getAll(params)
 			.then((response) => {
 				if (!mounted) return;
 				setMembers(response.teamMembers || response.teams || []);
-				if (response.currentVersion) setSelectedVersion((current) => current || response.currentVersion);
-				if (response.availableVersions?.length) setAvailableVersions(response.availableVersions);
+
+				// Build sorted available versions list from API response
+				if (response.availableVersions?.length) {
+					const sorted = [...response.availableVersions].sort(
+						(a, b) => parseFloat(a) - parseFloat(b)
+					);
+					setAvailableVersions(sorted);
+
+					// Auto-select highest version only on first load (when nothing is selected yet)
+					if (!selectedVersion) {
+						const highest = sorted[sorted.length - 1];
+						setSelectedVersion(highest);
+					}
+				} else if (!selectedVersion && response.currentVersion) {
+					setSelectedVersion(response.currentVersion);
+				}
 			})
 			.catch((requestError) => { if (mounted) setError(requestError.message || "Unable to load the team directory."); })
 			.finally(() => { if (mounted) setLoading(false); });
