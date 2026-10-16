@@ -8,6 +8,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/media", express.static(storageDirectory, {
+  fallthrough: false,
+  index: false,
+  dotfiles: "deny",
+  redirect: false
+}));
 
 if (
   storageDirectory &&
