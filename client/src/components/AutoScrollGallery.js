@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './AutoScrollGallery.css';
 
 function AutoScrollGallery({ items, direction = 'left', duration = 48, label }) {
   const copies = [0, 1];
+  const [failedImages, setFailedImages] = useState(() => new Set());
+
+  useEffect(() => {
+    setFailedImages(new Set());
+  }, [items]);
+
+  const visibleItems = items.filter((item) => item.image && !failedImages.has(item.image));
+  const handleImageError = (image) => {
+    setFailedImages((current) => {
+      const next = new Set(current);
+      next.add(image);
+      return next;
+    });
+  };
 
   return (
     <div className="auto-gallery" role="region" aria-label={label}>
@@ -16,13 +30,14 @@ function AutoScrollGallery({ items, direction = 'left', duration = 48, label }) 
             key={copy}
             aria-hidden={copy === 1 ? 'true' : undefined}
           >
-            {items.map((item, index) => (
+            {visibleItems.map((item, index) => (
               <figure className="auto-gallery__item" key={`${copy}-${index}-${item.image}`}>
                 <img
                   src={item.image}
                   alt={copy === 1 ? '' : item.alt || item.text}
                   loading="lazy"
                   draggable="false"
+                  onError={() => handleImageError(item.image)}
                 />
                 <figcaption>{item.text}</figcaption>
               </figure>
