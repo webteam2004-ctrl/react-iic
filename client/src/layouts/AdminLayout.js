@@ -3,7 +3,6 @@ import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-do
 import {
     CalendarDays,
     Image,
-    FolderGit2,
     Users,
     UserCheck,
     ChevronLeft,
@@ -16,6 +15,7 @@ import {
     ExternalLink,
     ChevronDown,
     Layers,
+    Home,
     Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -52,7 +52,9 @@ export default function AdminLayout() {
         if (path.startsWith('/admin/gallery')) return 'Gallery Management';
         if (path.startsWith('/admin/ideahub')) return 'Idea Hub / SIH Reviews';
         if (path.startsWith('/admin/teams')) return 'Team Management';
+        if (path.startsWith('/admin/contact-messages')) return 'Contact Messages';
         if (path.startsWith('/admin/users')) return 'Super Admin User Management';
+        if (path.startsWith('/managehome')) return 'Manage Home Page';
         return 'Dashboard';
     };
 
@@ -97,17 +99,23 @@ export default function AdminLayout() {
                     icon: Award,
                     visible: isSuperAdmin() || canRead('idea_hub'),
                 },
-                {
-                    to: '/admin-challenges',
-                    label: 'SIH Review Portal',
-                    icon: FolderGit2,
-                    visible: true,
-                },
             ],
         },
         {
             title: 'Administration',
             items: [
+                {
+                    to: '/managehome',
+                    label: 'Manage Home',
+                    icon: Home,
+                    visible: isSuperAdmin() || canRead('manage_home'),
+                },
+                {
+                    to: '/admin/contact-messages',
+                    label: 'Contact Messages',
+                    icon: Bell,
+                    visible: isSuperAdmin() || canRead('contact_messages'),
+                },
                 {
                     to: '/admin/teams',
                     label: 'Council Teams',
@@ -345,11 +353,6 @@ export default function AdminLayout() {
                                             <span>Admin Users</span>
                                         </Link>
                                     )}
-
-                                    <Link to="/admin-challenges" className={styles.dropdownItem}>
-                                        <FolderGit2 size={15} />
-                                        <span>SIH Review Portal</span>
-                                    </Link>
 
                                     <button
                                         type="button"

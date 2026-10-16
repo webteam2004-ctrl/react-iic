@@ -42,7 +42,9 @@ export const ensureSuperAdmin = async () => {
             idea_hub: ["create", "read", "update", "delete"],
             team: ["create", "read", "update", "delete"],
             analytics: ["read"],
-            admin_users: ["create", "read", "update", "delete"]
+            admin_users: ["create", "read", "update", "delete"],
+            contact_messages: ["create", "read", "update", "delete"],
+            manage_home: ["create", "read", "update", "delete"]
         };
 
         const { data: newAdmin, error: insertError } = await supabase

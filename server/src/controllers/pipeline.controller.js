@@ -94,7 +94,7 @@ export const publishUnifiedEvent = async (req, res) => {
                 if (!signature || signature.mime !== file.mimetype) {
                     throw new Error(`Invalid image contents for ${file.originalname}`);
                 }
-                const stored = await saveImage(file.buffer, signature);
+                const stored = await saveImage(file.buffer, signature, "events");
                 savedFiles.push(stored);
                 imagesToAttach.push({
                     image_url: stored.relativePath,
@@ -132,7 +132,9 @@ export const publishUnifiedEvent = async (req, res) => {
         });
     } catch (err) {
         if (savedFiles?.length) {
-            await Promise.allSettled(savedFiles.map((file) => removeImage(file.filename)));
+            await Promise.allSettled(
+                savedFiles.map((file) => removeImage(file.publicUrl, "events"))
+            );
         }
         console.error("[Pipeline] Publish error:", err);
         return res.status(500).json({

@@ -15,3 +15,4 @@ export const imageUpload = multer({
         callback(null, true);
     }
 });
+

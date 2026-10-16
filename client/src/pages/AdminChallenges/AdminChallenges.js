@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './adminChallenges.module.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://iic-backend-hatq.onrender.com/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://react-iic.onrender.com/api';
 
 function AdminChallenges() {
   const [challenges, setChallenges] = useState([]);

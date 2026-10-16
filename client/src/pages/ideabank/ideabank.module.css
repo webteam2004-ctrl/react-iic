@@ -822,7 +822,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
+  
   background: linear-gradient(135deg, #F39200 0%, #EA580C 100%);
   color: #FFFFFF;
   padding: 15px 38px;
@@ -833,6 +833,7 @@
   border: none;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(243, 146, 0, 0.28);
+  
 }
 
 
@@ -1257,6 +1258,7 @@
     grid-template-columns: 1fr;
   }
 
+  
 
   .submitBtn {
     width: 100%;

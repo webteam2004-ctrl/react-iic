@@ -11,7 +11,9 @@ function Layout({ children }) {
     }, [pathname]);
 
     // Do not render public website Navbar/Footer on admin dashboard routes
-    const isAdminDashboard = pathname.startsWith('/admin') && pathname !== '/admin-portal-login';
+    const isAdminDashboard =
+        (pathname.startsWith('/admin') && pathname !== '/admin-portal-login') ||
+        pathname === '/managehome';
 
     if (isAdminDashboard) {
         return <>{children}</>;

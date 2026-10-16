@@ -8,6 +8,8 @@ import challengeRoutes from "./challenge.routes.js";
 import calendarRoutes from "./calendar.routes.js";
 import analyticsRoutes from "./analytics.routes.js";
 import pipelineRoutes from "./pipeline.routes.js";
+import homepageRoutes from "./homepage.routes.js";
+import contactRoutes from "./contact.routes.js";
 
 const api = Router();
 
@@ -25,5 +27,7 @@ api.use("/admin", adminRoute);
 api.use("/admin/users", adminUserRoutes);
 api.use("/admin/analytics", analyticsRoutes);
 api.use("/pipeline", pipelineRoutes);
+api.use("/homepage", homepageRoutes);
+api.use("/contact", contactRoutes);
 
 export default api;

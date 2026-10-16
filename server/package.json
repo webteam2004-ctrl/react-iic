@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "test:rbac": "node test-rbac.js"
+    "test:rbac": "node test-rbac.js",
+    "test:rbac:middleware": "node test-rbac-middleware.js"
   },
   "keywords": [],
   "author": "",

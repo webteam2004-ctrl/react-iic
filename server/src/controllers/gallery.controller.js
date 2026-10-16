@@ -1,7 +1,6 @@
 import multer from "multer";
 import { supabase } from "../config/supabase.js";
 import {
-    filenameFromImagePath,
     identifyImage,
     publicImageUrl,
     removeImage,
@@ -92,10 +91,37 @@ export const getAllGalleryImages = async (req, res) => {
             date: img.created_at
         }));
 
+        const groupedEvents = [];
+        const groupedByKey = new Map();
+        formattedImages.forEach((image) => {
+            const key = image.event_id === null
+                ? `image:${image.id}`
+                : `event:${image.event_id}`;
+            let event = groupedByKey.get(key);
+            if (!event) {
+                event = {
+                    id: image.event_id === null ? `uploaded-${image.id}` : `event-${image.event_id}`,
+                    event_id: image.event_id,
+                    title: image.title,
+                    caption: image.caption,
+                    date: image.date,
+                    created_at: image.date,
+                    description: image.caption || "Images from the Institution's Innovation Council.",
+                    images: []
+                };
+                groupedByKey.set(key, event);
+                groupedEvents.push(event);
+            }
+            if (image.public_url || image.image_url) {
+                event.images.push(image.public_url || image.image_url);
+            }
+        });
+
         return res.status(200).json({
             success: true,
             galleryImages: formattedImages,
-            gallery: formattedImages
+            gallery: formattedImages,
+            galleryEvents: groupedEvents
         });
     } catch (error) {
         console.error("[Gallery] Unexpected error:", error);
@@ -174,15 +200,18 @@ export const deleteGalleryImage = async (req, res) => {
 
         if (error) throw error;
 
-        const filename = filenameFromImagePath(existing.image_url);
-        if (filename) {
+        const isSupabaseStorageUrl =
+            /^https?:\/\/.+\/storage\/v1\/object\/public\//i.test(
+                existing.image_url || ""
+            );
+        if (isSupabaseStorageUrl) {
             const { count: references, error: referenceError } = await supabase
                 .from("gallery")
                 .select("id", { count: "exact", head: true })
                 .eq("image_url", existing.image_url);
             if (referenceError) throw referenceError;
             if (!references) {
-                await removeImage(filename);
+                await removeImage(existing.image_url, "gallery");
             }
         }
 
@@ -228,7 +257,7 @@ export const uploadGalleryImages = async (req, res) => {
             if (!signature || signature.mime !== file.mimetype) {
                 return res.status(400).json({ success: false, message: `Invalid image contents for ${file.originalname}` });
             }
-            const stored = await saveImage(file.buffer, signature);
+            const stored = await saveImage(file.buffer, signature, "gallery");
             savedFiles.push(stored);
             records.push({
                 image_url: stored.relativePath,
@@ -249,7 +278,9 @@ export const uploadGalleryImages = async (req, res) => {
             }))
         });
     } catch (error) {
-        await Promise.allSettled(savedFiles.map((file) => removeImage(file.filename)));
+        await Promise.allSettled(
+            savedFiles.map((file) => removeImage(file.publicUrl, "gallery"))
+        );
         console.error("[Gallery] Upload error:", error);
         return res.status(error instanceof multer.MulterError ? 400 : 500).json({
             success: false,

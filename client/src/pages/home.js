@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import AccordionGallery from '../components/AccordionGallery';
 import AutoScrollGallery from '../components/AutoScrollGallery';
+import { api, resolveMediaUrl } from '../services/api';
 import {
   BookOpen,
   Lightbulb,
@@ -92,6 +93,49 @@ const campusGalleryItems = [
   { image: 'https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/SRM%20University/Screenshot%202026-08-21%20152904.png', text: 'SRM Incubation Visit' },
   { image: 'https://vspgdcjylvxjdgaugjwq.supabase.co/storage/v1/object/public/gallery/rvr%26jc/WhatsApp%20Image%202026-08-23%20at%2012.09.02%20AM.jpeg', text: 'RVR&JC Incubation Visit' }
 ];
+
+const getEventDate = (event) => {
+  const timestamp = Date.parse(String(event?.start_time || event?.date || ''));
+  return Number.isNaN(timestamp) ? null : timestamp;
+};
+
+const getLivePastEvents = (events) => events
+  .filter((event) => {
+    const status = String(event.status || '').toLowerCase();
+    const eventDate = getEventDate(event);
+    const isPastByDate = eventDate !== null && eventDate <= Date.now();
+    const isCompleted = status === 'completed' || status === 'complete' || status === 'past';
+    const isExplicitlyCurrent = status === 'upcoming' || status === 'ongoing' || status === 'archived';
+    return !isExplicitlyCurrent && (isCompleted || isPastByDate);
+  })
+  .map((event) => ({
+    image: resolveMediaUrl(
+      event.cover_image?.public_url ||
+      event.cover_image?.image_url ||
+      event.banner_url
+    ),
+    text: event.title || 'IIC Event',
+    alt: event.title || 'IIC event',
+    timestamp: getEventDate(event),
+    id: event.id
+  }))
+  .filter((event) => event.image && event.text)
+  .sort((left, right) => (right.timestamp || 0) - (left.timestamp || 0));
+
+const getLiveGalleryItems = (items) => items
+  .map((item) => ({
+    image: resolveMediaUrl(item.public_url || item.image_url || item.images?.[0]),
+    text: item.caption || item.title || 'IIC campus gallery',
+    alt: item.caption || item.title || 'IIC campus gallery',
+    timestamp: Date.parse(String(item.date || item.created_at || '')),
+    id: item.id
+  }))
+  .filter((item) => item.image && item.text)
+  .sort((left, right) => {
+    const leftTime = Number.isNaN(left.timestamp) ? 0 : left.timestamp;
+    const rightTime = Number.isNaN(right.timestamp) ? 0 : right.timestamp;
+    return rightTime - leftTime;
+  });
 
 const keyActivities = [
   {
@@ -406,6 +450,27 @@ const HERO_TITLE = 'Sapere aude';
 const HOVER_HERO_TITLE = 'Dare to Know';
 const SHUFFLE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const SCRAMBLE_CHARACTERS = '!<>-_\\/[]{}—=+*^?#________';
+const STATIC_HERO_IMAGE = '/images/Sunrise%20Ideas%20by%20the%20River.png';
+const STATIC_TEAM_BANNER = '/teams/teams.png';
+
+function ResilientImage({ src, fallbackSrc, alt = '', ...props }) {
+  const [imageSrc, setImageSrc] = useState(src || fallbackSrc);
+
+  useEffect(() => {
+    setImageSrc(src || fallbackSrc);
+  }, [src, fallbackSrc]);
+
+  return (
+    <img
+      {...props}
+      src={imageSrc}
+      alt={alt}
+      onError={() => {
+        if (imageSrc !== fallbackSrc) setImageSrc(fallbackSrc);
+      }}
+    />
+  );
+}
 
 function ScrambledText({ text, className, as: TextElement = 'p' }) {
   const characters = Array.from(text);
@@ -489,11 +554,97 @@ function ScrambledText({ text, className, as: TextElement = 'p' }) {
 
 function Home() {
   const [activeWhoTab, setActiveWhoTab] = useState('mission');
+  const [homepageContent, setHomepageContent] = useState(null);
+  const [liveEventItems, setLiveEventItems] = useState([]);
+  const [liveGalleryItems, setLiveGalleryItems] = useState([]);
   const [isHeroTitleActive, setIsHeroTitleActive] = useState(false);
   const [heroTitleTarget, setHeroTitleTarget] = useState(null);
   const [heroTitle, setHeroTitle] = useState(HERO_TITLE);
   const currentTab = WHO_WE_ARE_TABS.find((t) => t.id === activeWhoTab) || WHO_WE_ARE_TABS[0];
   const CurrentTabIcon = currentTab.icon;
+
+  useEffect(() => {
+    let active = true;
+    api.homepage.getPublic()
+      .then((response) => {
+        if (active && response?.success) setHomepageContent(response.homepage);
+      })
+      .catch((error) => {
+        console.warn('[Home] Dynamic homepage content unavailable:', error.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadLiveSections = async () => {
+      const [eventsResult, galleryResult] = await Promise.allSettled([
+        api.events.getAll(),
+        api.gallery.getAll()
+      ]);
+
+      if (!active) return;
+
+      if (eventsResult.status === 'fulfilled' && eventsResult.value?.success) {
+        setLiveEventItems(getLivePastEvents(eventsResult.value.events || []));
+      } else {
+        console.warn('[Home] Live past events unavailable; using fallback content.');
+      }
+
+      if (galleryResult.status === 'fulfilled' && galleryResult.value?.success) {
+        setLiveGalleryItems(
+          getLiveGalleryItems(
+            galleryResult.value.galleryImages || galleryResult.value.gallery || []
+          )
+        );
+      } else {
+        console.warn('[Home] Live campus gallery unavailable; using fallback content.');
+      }
+    };
+
+    const refreshLiveSections = () => {
+      if (document.visibilityState === 'visible') loadLiveSections();
+    };
+
+    loadLiveSections();
+    window.addEventListener('focus', refreshLiveSections);
+    document.addEventListener('visibilitychange', refreshLiveSections);
+
+    return () => {
+      active = false;
+      window.removeEventListener('focus', refreshLiveSections);
+      document.removeEventListener('visibilitychange', refreshLiveSections);
+    };
+  }, []);
+
+  const usableStartupStories = Array.isArray(homepageContent?.startup_stories)
+    ? homepageContent.startup_stories.filter(
+      (story) => story?.image_url && String(story.title || '').trim()
+    )
+    : [];
+  const dynamicStartupStories = usableStartupStories.length
+    ? usableStartupStories.map((story) => ({
+      image: resolveMediaUrl(story.image_url),
+      fallbackImage: startupGalleryItems.find(
+        (item) => item.label === story.title
+      )?.image || startupGalleryItems[0].image,
+      label: story.title,
+      alt: story.alt_text || story.title,
+      storyTitle: story.title,
+      description: story.description
+    }))
+    : startupGalleryItems;
+  const heroImage = homepageContent?.hero_image_url
+    ? resolveMediaUrl(homepageContent.hero_image_url)
+    : STATIC_HERO_IMAGE;
+  const teamBannerImage = homepageContent?.team_banner_url
+    ? resolveMediaUrl(homepageContent.team_banner_url)
+    : STATIC_TEAM_BANNER;
+  const displayedEventItems = liveEventItems.length ? liveEventItems : eventGalleryItems;
+  const displayedGalleryItems = liveGalleryItems.length ? liveGalleryItems : campusGalleryItems;
 
   useEffect(() => {
     if (!heroTitleTarget) {
@@ -578,8 +729,9 @@ function Home() {
         </div>
 
         <div className={styles['hero-image-wrap']}>
-          <img
-            src="/images/Sunrise%20Ideas%20by%20the%20River.png"
+          <ResilientImage
+            src={heroImage}
+            fallbackSrc={STATIC_HERO_IMAGE}
             alt="A student imagining new ideas beside a river at sunset"
             className={styles['hero-image']}
           />
@@ -591,7 +743,7 @@ function Home() {
           Startup Stories
         </h2>
         <AccordionGallery
-          items={startupGalleryItems}
+          items={dynamicStartupStories}
           defaultIndex={2}
           expandRatio={0.52}
           trigger="hover"
@@ -614,7 +766,7 @@ function Home() {
             Past Events
           </h2>
           <AutoScrollGallery
-            items={eventGalleryItems}
+            items={displayedEventItems}
             direction="left"
             duration={48}
             label="Past IIC events"
@@ -628,7 +780,7 @@ function Home() {
             Campus Gallery
           </h2>
           <AutoScrollGallery
-            items={campusGalleryItems}
+            items={displayedGalleryItems}
             direction="right"
             duration={58}
             label="IIC campus gallery"
@@ -851,8 +1003,9 @@ function Home() {
 
       <div className={styles['home-team-banner']}>
         <Link to="/teams" aria-label="Meet the IIC team">
-          <img
-            src="/teams/teams.png"
+          <ResilientImage
+            src={teamBannerImage}
+            fallbackSrc={STATIC_TEAM_BANNER}
             alt="The IIC team"
             loading="lazy"
           />

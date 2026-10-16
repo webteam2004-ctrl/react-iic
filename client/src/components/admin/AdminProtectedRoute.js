@@ -7,6 +7,8 @@ export default function AdminProtectedRoute({
     children,
     module,
     action = 'read',
+    requiredModule,
+    requiredAction,
     requiredRole,
 }) {
     const { user, token, isLoading, can, isSuperAdmin } = useAuth();
@@ -55,8 +57,10 @@ export default function AdminProtectedRoute({
     }
 
     // Module & action check
-    if (module && !can(module, action)) {
-        return <AdminAccessDenied module={module} action={action} />;
+    const permissionModule = requiredModule || module;
+    const permissionAction = requiredAction || action;
+    if (permissionModule && !can(permissionModule, permissionAction)) {
+        return <AdminAccessDenied module={permissionModule} action={permissionAction} />;
     }
 
     return children;

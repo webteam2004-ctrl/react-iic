@@ -89,11 +89,6 @@ const filterOptions = [
     .map((value) => ({ label: categoryLabels[value] || value, value })),
 ];
 const galleryYears = [...new Set(galleryData.map((item) => item.year))];
-const photoTotal = galleryData.reduce(
-  (total, item) => total + item.images.length,
-  0,
-);
-
 function Gallery() {
   const [uploadedGallery, setUploadedGallery] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -104,6 +99,10 @@ function Gallery() {
   const pointerStart = useRef(null);
   const didSwipe = useRef(false);
   const displayGallery = [...galleryData, ...uploadedGallery];
+  const photoTotal = displayGallery.reduce(
+    (total, item) => total + item.images.length,
+    0,
+  );
   const featuredGallery = displayGallery.slice(0, 7);
   const typedHeadline =
     "Every photo tells a story of an idea brought to life. Explore, engage, and innovate.";
@@ -120,15 +119,36 @@ function Gallery() {
   useEffect(() => {
     let mounted = true;
     api.gallery.getAll().then((response) => {
-      const uploaded = (response.galleryImages || []).map((image) => ({
-        id: `uploaded-${image.id}`,
+      const groupedImages = response.galleryEvents || (response.galleryImages || []).reduce((events, image) => {
+        const key = image.event_id === null || image.event_id === undefined
+          ? `image:${image.id}`
+          : `event:${image.event_id}`;
+        const existing = events.find((event) => event.key === key);
+        const imageUrl = resolveMediaUrl(image.public_url || image.image_url);
+        if (!imageUrl) return events;
+        if (existing) {
+          existing.images.push(imageUrl);
+          return events;
+        }
+        events.push({
+          key,
+          id: `uploaded-${image.event_id || image.id}`,
+          event_id: image.event_id,
+          created_at: image.created_at || image.date,
+          caption: image.caption,
+          title: image.caption || "IIC Gallery",
+          date: image.created_at || image.date ? new Date(image.created_at || image.date).toLocaleDateString() : "Recently",
+          description: image.caption || "Images from the Institution's Innovation Council.",
+          images: [imageUrl],
+        });
+        return events;
+      }, []);
+      const uploaded = groupedImages.map((image) => ({
+        ...image,
         year: image.created_at ? new Date(image.created_at).getFullYear().toString() : "2026",
         category: "uploaded",
-        title: image.caption || "IIC Gallery",
-        date: image.created_at ? new Date(image.created_at).toLocaleDateString() : "Recently",
-        description: image.caption || "Images from the Institution's Innovation Council.",
-        images: [resolveMediaUrl(image.public_url || image.image_url)],
-      }));
+        images: image.images.map((imageUrl) => resolveMediaUrl(imageUrl)),
+      })).filter((image) => image.images.length > 0);
       if (mounted) setUploadedGallery(uploaded);
     }).catch((error) => console.warn("[Gallery] Could not fetch uploaded images:", error));
     return () => { mounted = false; };

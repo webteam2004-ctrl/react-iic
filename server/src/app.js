@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { existsSync, statSync } from "node:fs";
 import api from "./routes/index.js";
 import { storageDirectory } from "./services/mediaStorage.service.js";
 import multer from "multer";
@@ -13,6 +14,19 @@ app.use("/media", express.static(storageDirectory, {
   dotfiles: "deny",
   redirect: false
 }));
+
+if (
+  storageDirectory &&
+  existsSync(storageDirectory) &&
+  statSync(storageDirectory).isDirectory()
+) {
+  app.use("/media", express.static(storageDirectory, {
+    fallthrough: false,
+    index: false,
+    dotfiles: "deny",
+    redirect: false
+  }));
+}
 
 app.use("/api", api);
 app.get("/api/health", (req, res) => {
