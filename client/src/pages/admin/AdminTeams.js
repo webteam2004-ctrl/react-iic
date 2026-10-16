@@ -12,6 +12,7 @@ import {
 import { api, resolveMediaUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import MultiImageUploader from '../../components/admin/MultiImageUploader';
+import { getCurrentTeamsVersion, getAvailableTeamsVersions } from '../../utils/teamVersion';
 import styles from './AdminCommon.module.css';
 
 const LinkedinIcon = ({ size = 15 }) => (
@@ -31,8 +32,8 @@ const panelRoles = {
     'IIC Presidents': ['President', 'Vice President', 'Secretary'],
     'Social Media Department': ['SM Head', 'SM Member'],
     'Public Relations': ['PR Member', 'PR Head'],
-    'Web Development': ['Web Head', 'Web Member'],
-    Events: ['Events Head', 'Events Member'],
+    'Web Development': ['Web Head', 'Frontend' , 'Backend' , 'UI/UX',],
+    'Events': ['Events Head', 'Events Member'],
     'Review & Validation': ['R&V Head', 'R&V Member'],
 };
 
@@ -59,6 +60,7 @@ export default function AdminTeams() {
         linkedin_url: '',
         github_url: '',
         order_index: 0,
+        teams_version: getCurrentTeamsVersion(),
     });
 
     const loadTeamMembers = useCallback(async () => {
@@ -95,6 +97,7 @@ export default function AdminTeams() {
             linkedin_url: '',
             github_url: '',
             order_index: members.length + 1,
+            teams_version: getCurrentTeamsVersion(),
         });
         setAvatarFiles([]);
         setIsModalOpen(true);
@@ -110,6 +113,7 @@ export default function AdminTeams() {
             linkedin_url: member.linkedin_url || '',
             github_url: member.github_url || '',
             order_index: member.order_index || 0,
+            teams_version: member.teams_version || getCurrentTeamsVersion(),
         });
         setAvatarFiles([]);
         setIsModalOpen(true);
@@ -136,6 +140,7 @@ export default function AdminTeams() {
                 linkedin_url: formData.linkedin_url.trim() || null,
                 github_url: formData.github_url.trim() || null,
                 order_index: parseInt(formData.order_index, 10) || 0,
+                teams_version: formData.teams_version,
             };
 
             if (editingMember) {
@@ -235,6 +240,7 @@ export default function AdminTeams() {
                                 <th>Member</th>
                                 <th>Panel</th>
                                 <th>Role</th>
+                                <th>Teams Version</th>
                                 <th>Social Links</th>
                                 <th>Sort Order</th>
                                 <th style={{ textAlign: 'right' }}>Actions</th>
@@ -243,13 +249,13 @@ export default function AdminTeams() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
                                         Loading team directory...
                                     </td>
                                 </tr>
                             ) : filteredMembers.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: 'center', padding: '3.5rem', color: '#94a3b8' }}>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '3.5rem', color: '#94a3b8' }}>
                                         No team members found.
                                     </td>
                                 </tr>
@@ -307,6 +313,11 @@ export default function AdminTeams() {
                                                 }}
                                             >
                                                 {member.department || 'Council'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#27358f' }}>
+                                                {member.teams_version || '1.0'}
                                             </span>
                                         </td>
                                         <td>
@@ -475,6 +486,22 @@ export default function AdminTeams() {
                                             onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
                                         />
                                     </div>
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Teams Version</label>
+                                    <select
+                                        className={styles.formSelect}
+                                        value={formData.teams_version}
+                                        onChange={(e) => setFormData({ ...formData, teams_version: e.target.value })}
+                                    >
+                                        {getAvailableTeamsVersions().map((version) => (
+                                            <option key={version} value={version}>{version}</option>
+                                        ))}
+                                    </select>
+                                    <span className={styles.formHelper}>
+                                        Assign this member to the academic team cycle shown on the public Teams page.
+                                    </span>
                                 </div>
 
                                 <div className={styles.formGroup}>

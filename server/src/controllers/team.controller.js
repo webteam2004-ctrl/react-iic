@@ -6,6 +6,11 @@ import {
     removeImage,
     saveImage
 } from "../services/mediaStorage.service.js";
+import {
+    getAvailableTeamsVersions,
+    getCurrentTeamsVersion,
+    normalizeTeamsVersion
+} from "../utils/teamVersion.js";
 
 // Map existing frontend fields to the designed database columns.
 const buildTeamPayload = (body, imageUrl) => {
@@ -37,7 +42,10 @@ const buildTeamPayload = (body, imageUrl) => {
             body.order_index ?? body.display_order,
             10
         ) || 0,
-        is_active: body.is_active ?? true
+        is_active: body.is_active ?? true,
+        teams_version: normalizeTeamsVersion(
+            body.teams_version || getCurrentTeamsVersion()
+        )
     };
 
     // Keep both existing image columns compatible.
@@ -63,7 +71,7 @@ const saveUploadedTeamImage = async (file) => {
         throw new Error(`Invalid image contents for ${file.originalname}`);
     }
 
-    return await saveImage(file.buffer, signature);
+    return await saveImage(file.buffer, signature, "team");
 };
 
 const getPublicTeamMember = (req, member) => ({
@@ -109,24 +117,32 @@ export const createTeamMember = async (req, res) => {
         });
     } catch (error) {
         if (storedFile) {
-            await removeImage(storedFile.filename).catch(() => {});
+            await removeImage(storedFile.publicUrl, "team").catch(() => {});
         }
 
         console.error("[Team] Create error:", error);
 
-        return res.status(500).json({
+        return res.status(error.code === "INVALID_TEAMS_VERSION" ? 400 : 500).json({
             success: false,
-            message: "Internal server error"
+            message: error.code === "INVALID_TEAMS_VERSION"
+                ? error.message
+                : "Internal server error"
         });
     }
 };
 
 export const getAllTeamMemeber = async (req, res) => {
     try {
-        const { data, error } = await supabase
+        const requestedVersion = req.query.teams_version
+            ? normalizeTeamsVersion(req.query.teams_version)
+            : null;
+        let query = supabase
             .from("team_members")
             .select("*")
             .order("display_order", { ascending: true });
+        if (requestedVersion) query = query.eq("teams_version", requestedVersion);
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -138,14 +154,18 @@ export const getAllTeamMemeber = async (req, res) => {
             success: true,
             message: "Team members fetched successfully",
             teamMembers,
-            teams: teamMembers
+            teams: teamMembers,
+            currentVersion: getCurrentTeamsVersion(),
+            availableVersions: getAvailableTeamsVersions()
         });
     } catch (error) {
         console.error("[Team] Get all error:", error);
 
-        return res.status(500).json({
+        return res.status(error.code === "INVALID_TEAMS_VERSION" ? 400 : 500).json({
             success: false,
-            message: "Internal server error"
+            message: error.code === "INVALID_TEAMS_VERSION"
+                ? error.message
+                : "Internal server error"
         });
     }
 };
@@ -177,9 +197,11 @@ export const getTeamMemberById = async (req, res) => {
     } catch (error) {
         console.error("[Team] Get by ID error:", error);
 
-        return res.status(500).json({
+        return res.status(error.code === "INVALID_TEAMS_VERSION" ? 400 : 500).json({
             success: false,
-            message: "Internal server error"
+            message: error.code === "INVALID_TEAMS_VERSION"
+                ? error.message
+                : "Internal server error"
         });
     }
 };
@@ -247,8 +269,8 @@ export const updateTeamMember = async (req, res) => {
         if (storedFile) {
             const oldImage = existing.image_url || existing.profile_image;
 
-            if (oldImage?.startsWith("/media/")) {
-                await removeImage(oldImage.split("/").pop()).catch(() => {});
+            if (oldImage?.includes("/storage/v1/object/public/")) {
+                await removeImage(oldImage, "team").catch(() => {});
             }
         }
 
@@ -259,14 +281,16 @@ export const updateTeamMember = async (req, res) => {
         });
     } catch (error) {
         if (storedFile) {
-            await removeImage(storedFile.filename).catch(() => {});
+            await removeImage(storedFile.publicUrl, "team").catch(() => {});
         }
 
         console.error("[Team] Update error:", error);
 
-        return res.status(500).json({
+        return res.status(error.code === "INVALID_TEAMS_VERSION" ? 400 : 500).json({
             success: false,
-            message: "Internal server error"
+            message: error.code === "INVALID_TEAMS_VERSION"
+                ? error.message
+                : "Internal server error"
         });
     }
 };
@@ -299,8 +323,8 @@ export const deleteTeamMember = async (req, res) => {
 
         const oldImage = existing.image_url || existing.profile_image;
 
-        if (oldImage?.startsWith("/media/")) {
-            await removeImage(oldImage.split("/").pop()).catch(() => {});
+        if (oldImage?.includes("/storage/v1/object/public/")) {
+            await removeImage(oldImage, "team").catch(() => {});
         }
 
         return res.status(200).json({

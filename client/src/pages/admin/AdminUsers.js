@@ -23,6 +23,8 @@ const AVAILABLE_MODULES = [
     { id: 'gallery', label: 'Gallery Showcase' },
     { id: 'teams', label: 'Council Directory' },
     { id: 'idea_hub', label: 'Idea Hub / SIH Reviews' },
+    { id: 'contact_messages', label: 'Contact Messages' },
+    { id: 'manage_home', label: 'Manage Home' },
 ];
 
 const ACTIONS = ['read', 'create', 'update', 'delete'];
@@ -90,6 +92,8 @@ export default function AdminUsers() {
                 gallery: ['read', 'create'],
                 teams: ['read', 'create', 'update'],
                 idea_hub: ['read', 'update'],
+                contact_messages: ['read', 'update'],
+                manage_home: ['read', 'update'],
             },
         });
         setIsModalOpen(true);

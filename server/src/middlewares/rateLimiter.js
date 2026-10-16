@@ -23,3 +23,14 @@ export const apiLimiter = rateLimit({
         message: "Too many requests, please slow down."
     }
 });
+
+export const contactSubmissionLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 8,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many contact submissions. Please try again later."
+    }
+});

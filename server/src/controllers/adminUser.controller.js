@@ -82,7 +82,9 @@ export const createAdminUser = async (req, res) => {
                 idea_hub: ["create", "read", "update", "delete"],
                 team: ["create", "read", "update", "delete"],
                 analytics: ["read"],
-                admin_users: ["create", "read", "update", "delete"]
+                admin_users: ["create", "read", "update", "delete"],
+                contact_messages: ["create", "read", "update", "delete"],
+                manage_home: ["create", "read", "update", "delete"]
             };
         } else if (role === "analyst") {
             // Analysts strictly get read-only permissions
@@ -92,7 +94,9 @@ export const createAdminUser = async (req, res) => {
                 gallery: ["read"],
                 idea_hub: ["read"],
                 team: ["read"],
-                analytics: ["read"]
+                analytics: ["read"],
+                contact_messages: ["read"],
+                manage_home: ["read"]
             };
         }
 

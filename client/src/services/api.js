@@ -175,6 +175,30 @@ export const api = {
             }),
     },
 
+    contact: {
+        create: (data) =>
+            request('/contact', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            }),
+        list: (params = {}) => {
+            const query = new URLSearchParams();
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== '') query.append(key, value);
+            });
+            const qs = query.toString() ? `?${query.toString()}` : '';
+            return request(`/admin/contact-messages${qs}`);
+        },
+        getById: (id) => request(`/admin/contact-messages/${id}`),
+        update: (id, data) =>
+            request(`/admin/contact-messages/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify(data),
+            }),
+        delete: (id) =>
+            request(`/admin/contact-messages/${id}`, { method: 'DELETE' }),
+    },
+
     // Unified Shared Pipeline
     pipeline: {
         publish: (pipelineData, files = []) => {
@@ -211,7 +235,12 @@ export const api = {
 
     // Team Management
     team: {
-        getAll: () => request('/team'),
+        getAll: (params = {}) => {
+            const query = new URLSearchParams();
+            if (params.teams_version) query.append('teams_version', params.teams_version);
+            const qs = query.toString() ? `?${query.toString()}` : '';
+            return request(`/team${qs}`);
+        },
         getById: (id) => request(`/team/${id}`),
         create: (data, file) => {
             if (!file) return request('/team', { method: 'POST', body: JSON.stringify(data) });
@@ -230,6 +259,41 @@ export const api = {
         delete: (id) =>
             request(`/team/${id}`, {
                 method: 'DELETE',
+            }),
+    },
+
+    // Homepage content management
+    homepage: {
+        getPublic: () => request('/homepage'),
+        getAdmin: () => request('/homepage/admin'),
+        updateHero: (file) => {
+            const body = new FormData();
+            body.append('image', file);
+            return request('/homepage/admin/hero', { method: 'PUT', body });
+        },
+        updateTeamBanner: (file) => {
+            const body = new FormData();
+            body.append('image', file);
+            return request('/homepage/admin/team-banner', { method: 'PUT', body });
+        },
+        createStory: (data, file) => {
+            const body = new FormData();
+            Object.entries(data).forEach(([key, value]) => body.append(key, value ?? ''));
+            if (file) body.append('image', file);
+            return request('/homepage/admin/stories', { method: 'POST', body });
+        },
+        updateStory: (id, data, file) => {
+            const body = new FormData();
+            Object.entries(data).forEach(([key, value]) => body.append(key, value ?? ''));
+            if (file) body.append('image', file);
+            return request(`/homepage/admin/stories/${id}`, { method: 'PUT', body });
+        },
+        deleteStory: (id) =>
+            request(`/homepage/admin/stories/${id}`, { method: 'DELETE' }),
+        reorderStories: (order) =>
+            request('/homepage/admin/stories/order', {
+                method: 'PUT',
+                body: JSON.stringify({ order }),
             }),
     },
 

@@ -15,9 +15,7 @@ const Teams = React.lazy(() => import('./pages/teams/teams'));
 const About = React.lazy(() => import('./pages/about/about'));
 const IdeaHub = React.lazy(() => import('./pages/ideabank/ideabank'));
 const AdminLogin = React.lazy(() => import('./pages/adminLogin/AdminLogin'));
-const AdminChallenges = React.lazy(() =>
-  import('./pages/AdminChallenges/AdminChallenges')
-);
+const AdminChallenges = React.lazy(() => import('./pages/AdminChallenges/AdminChallenges'));
 const PageNotFound = React.lazy(() => import('./pages/PageNotFound'));
 
 // Admin Dashboard Components
@@ -26,10 +24,12 @@ const AdminEvents = React.lazy(() => import('./pages/admin/AdminEvents'));
 const AdminCalendar = React.lazy(() => import('./pages/admin/AdminCalendar'));
 const AdminGallery = React.lazy(() => import('./pages/admin/AdminGallery'));
 const AdminPipeline = React.lazy(() => import('./pages/admin/AdminPipeline'));
-const AdminIdeaHub = React.lazy(() => import('./pages/admin/AdminIdeaHub'));
 const AdminTeams = React.lazy(() => import('./pages/admin/AdminTeams'));
 const AdminUsers = React.lazy(() => import('./pages/admin/AdminUsers'));
+const AdminIdeaHub = React.lazy(() => import('./pages/admin/AdminIdeaHub'));
 const AdminAccessDenied = React.lazy(() => import('./pages/admin/AdminAccessDenied'));
+const ManageHome = React.lazy(() => import('./pages/admin/ManageHome'));
+const AdminContactMessages = React.lazy(() => import('./pages/admin/AdminContactMessages'));
 
 function App() {
   return (
@@ -146,17 +146,44 @@ function App() {
                   }
                 />
 
+                <Route
+                  path="contact-messages"
+                  element={
+                    <AdminProtectedRoute requiredModule="contact_messages" requiredAction="read">
+                      <AdminContactMessages />
+                    </AdminProtectedRoute>
+                  }
+                />
+
                 {/* Super Admin Restricted User Management */}
                 <Route
                   path="users"
                   element={
-                    <AdminProtectedRoute requireSuperAdmin>
+                    <AdminProtectedRoute requiredRole="super_admin">
                       <AdminUsers />
                     </AdminProtectedRoute>
                   }
                 />
 
                 <Route path="access-denied" element={<AdminAccessDenied />} />
+              </Route>
+
+              <Route
+                path="/managehome"
+                element={
+                  <AdminProtectedRoute requiredModule="manage_home" requiredAction="read">
+                    <AdminLayout />
+                  </AdminProtectedRoute>
+                }
+              >
+                <Route
+                  index
+                  element={
+                    <AdminProtectedRoute requiredModule="manage_home" requiredAction="read">
+                      <ManageHome />
+                    </AdminProtectedRoute>
+                  }
+                />
               </Route>
 
               {/* Fallback 404 Route */}

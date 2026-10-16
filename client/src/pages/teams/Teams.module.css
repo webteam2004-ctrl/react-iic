@@ -113,6 +113,36 @@
   perspective: 500px;
 }
 
+.yearFilter label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.yearFilterSelect {
+  min-width: 150px;
+  padding: 10px 32px 10px 13px;
+  color: var(--iic-blue-dark);
+  background: #fff;
+  border: 1px solid rgba(39, 53, 143, 0.22);
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(39, 53, 143, 0.1);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.yearFilterSelect:focus-visible {
+  outline: 3px solid var(--iic-orange);
+  outline-offset: 2px;
+}
+
 .yearFilterButton {
   position: relative;
   overflow: hidden;

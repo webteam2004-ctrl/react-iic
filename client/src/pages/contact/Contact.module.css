@@ -322,6 +322,21 @@
   font-size: 12px;
 }
 
+.formSuccess,
+.formError {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.formSuccess {
+  color: #15803d;
+}
+
+.formError {
+  color: #b91c1c;
+}
+
 /* =========================
    MAP SECTION
 ========================= */

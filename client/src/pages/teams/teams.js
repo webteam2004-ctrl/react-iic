@@ -1,10 +1,13 @@
 import React from "react";
 import { api, resolveMediaUrl } from "../../services/api";
+import {
+	getAvailableTeamsVersions,
+	getCurrentTeamsVersion
+} from "../../utils/teamVersion";
 import styles from "./Teams.module.css";
 
 const TEAM_QUOTE =
 	"“Your curiosity can start an idea. Our teamwork can turn it into a breakthrough.”";
-const TEAM_QUOTE_BREAK = TEAM_QUOTE.indexOf("Our teamwork");
 
 const panelDescriptions = {
 	"IIC Co-ordinators":
@@ -97,19 +100,26 @@ export default function Teams() {
 	const [members, setMembers] = React.useState([]);
 	const [loading, setLoading] = React.useState(true);
 	const [error, setError] = React.useState("");
+	const [selectedVersion, setSelectedVersion] = React.useState(getCurrentTeamsVersion());
+	const [availableVersions, setAvailableVersions] = React.useState(getAvailableTeamsVersions());
 	const [typedQuote, setTypedQuote] = React.useState("");
 	const [typingFinished, setTypingFinished] = React.useState(false);
-	const directoryRef = React.useRef(null);
-	const hasAutoScrolled = React.useRef(false);
 
 	React.useEffect(() => {
 		let mounted = true;
-		api.teams.getAll()
-			.then((response) => { if (mounted) setMembers(response.teamMembers || response.teams || []); })
+		setLoading(true);
+		setError("");
+		api.teams.getAll({ teams_version: selectedVersion })
+			.then((response) => {
+				if (!mounted) return;
+				setMembers(response.teamMembers || response.teams || []);
+				if (response.currentVersion) setSelectedVersion((current) => current || response.currentVersion);
+				if (response.availableVersions?.length) setAvailableVersions(response.availableVersions);
+			})
 			.catch((requestError) => { if (mounted) setError(requestError.message || "Unable to load the team directory."); })
 			.finally(() => { if (mounted) setLoading(false); });
 		return () => { mounted = false; };
-	}, []);
+	}, [selectedVersion]);
 
 	React.useEffect(() => {
 		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -139,6 +149,17 @@ export default function Teams() {
 					<h2 aria-label={TEAM_QUOTE}>{typedQuote}{!typingFinished && <span className={styles.quoteCursor} aria-hidden="true" />}</h2>
 				</div>
 				<div className={styles.teamDirectory}>
+					<div className={styles.yearFilter}>
+						<label htmlFor="teams-version">Teams version</label>
+						<select
+							id="teams-version"
+							className={styles.yearFilterSelect}
+							value={selectedVersion}
+							onChange={(event) => setSelectedVersion(event.target.value)}
+						>
+							{availableVersions.map((version) => <option key={version} value={version}>{version}</option>)}
+						</select>
+					</div>
 					{loading && <p className={styles.loadingMessage}>Loading team directory...</p>}
 					{error && <p className={styles.loadingMessage}>{error}</p>}
 					{!loading && !error && sections.length === 0 && <p className={styles.loadingMessage}>No team members have been published yet.</p>}

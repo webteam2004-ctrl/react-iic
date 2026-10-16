@@ -2,7 +2,7 @@
 // ACTIVE IMPLEMENTATION (Integrated from Desktop with On-Load & On-Scroll Motion)
 // ============================================================================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
 	FaLinkedinIn,
@@ -14,6 +14,7 @@ import {
 	FaArrowRight
 } from 'react-icons/fa';
 import styles from './Contact.module.css';
+import { api } from '../../services/api';
 
 const scrollSectionVariants = {
 	hidden: { opacity: 0, y: 28 },
@@ -45,6 +46,37 @@ const cardItemVariants = {
 };
 
 function Contact() {
+	const [form, setForm] = useState({
+		full_name: '',
+		email: '',
+		department_year: '',
+		subject: '',
+		message: ''
+	});
+	const [submitting, setSubmitting] = useState(false);
+	const [feedback, setFeedback] = useState(null);
+
+	const updateField = (field, value) => {
+		setForm((current) => ({ ...current, [field]: value }));
+		setFeedback(null);
+	};
+
+	const handleSubmit = async (event) => {
+		event.preventDefault();
+		if (submitting) return;
+		setSubmitting(true);
+		setFeedback(null);
+		try {
+			await api.contact.create(form);
+			setForm({ full_name: '', email: '', department_year: '', subject: '', message: '' });
+			setFeedback({ type: 'success', text: 'Your message has been sent successfully.' });
+		} catch (error) {
+			setFeedback({ type: 'error', text: error.message || 'Unable to send your message.' });
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
 	return (
 		<div className={styles.wrap}>
 
@@ -153,7 +185,7 @@ function Contact() {
 
 						<form
 							className={styles['contact-form']}
-							onSubmit={(e) => e.preventDefault()}
+							onSubmit={handleSubmit}
 						>
 
 							<div className={styles['form-row']}>
@@ -164,6 +196,9 @@ function Contact() {
 										id='name'
 										type='text'
 										placeholder='Enter your name'
+										value={form.full_name}
+										onChange={(e) => updateField('full_name', e.target.value)}
+										required
 									/>
 								</div>
 
@@ -173,6 +208,9 @@ function Contact() {
 										id='email'
 										type='email'
 										placeholder='Enter your email'
+										value={form.email}
+										onChange={(e) => updateField('email', e.target.value)}
+										required
 									/>
 								</div>
 
@@ -190,13 +228,15 @@ function Contact() {
 										id='department'
 										type='text'
 										placeholder='e.g. CSE / 3rd Year'
+										value={form.department_year}
+										onChange={(e) => updateField('department_year', e.target.value)}
 									/>
 								</div>
 
 								<div className={styles['form-group']}>
 									<label htmlFor='subject'>Subject</label>
 
-									<select id='subject' defaultValue=''>
+									<select id='subject' value={form.subject} onChange={(e) => updateField('subject', e.target.value)} required>
 										<option value='' disabled>
 											Select a subject
 										</option>
@@ -231,6 +271,9 @@ function Contact() {
 									id='message'
 									rows='5'
 									placeholder='Tell us how we can help...'
+									value={form.message}
+									onChange={(e) => updateField('message', e.target.value)}
+									required
 								></textarea>
 							</div>
 
@@ -241,9 +284,10 @@ function Contact() {
 								whileHover={{ scale: 1.02 }}
 								whileTap={{ scale: 0.98 }}
 							>
-								Send Message
+								{submitting ? 'Sending...' : 'Send Message'}
 								<FaArrowRight />
 							</motion.button>
+							{feedback && <p role='status' className={feedback.type === 'error' ? styles.formError : styles.formSuccess}>{feedback.text}</p>}
 
 						</form>
 

@@ -109,6 +109,12 @@ function AccordionGallery({
               src={item.image}
               alt={item.alt || item.label}
               draggable="false"
+              onError={(event) => {
+                if (item.fallbackImage && !event.currentTarget.dataset.fallbackApplied) {
+                  event.currentTarget.dataset.fallbackApplied = 'true';
+                  event.currentTarget.src = item.fallbackImage;
+                }
+              }}
               style={{
                 filter: grayscale && !isActive ? 'grayscale(1) brightness(0.68)' : 'none',
                 transform: `scale(1.08) translateX(${imageShift}px)`
@@ -149,6 +155,12 @@ function AccordionGallery({
             className="ag-story-image"
             src={selectedItem.image}
             alt={selectedItem.alt || selectedItem.label}
+            onError={(event) => {
+              if (selectedItem.fallbackImage && !event.currentTarget.dataset.fallbackApplied) {
+                event.currentTarget.dataset.fallbackApplied = 'true';
+                event.currentTarget.src = selectedItem.fallbackImage;
+              }
+            }}
           />
           <div className="ag-story-content">
             <p className="ag-story-eyebrow">Startup story</p>
